@@ -10,7 +10,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Discord\Features\" />
     <Folder Include="Discord\Providers\" />
   </ItemGroup>
 
