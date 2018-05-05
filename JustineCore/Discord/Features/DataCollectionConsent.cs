@@ -17,5 +17,10 @@ namespace JustineCore.Discord.Features
                 Date = DateTime.UtcNow
             };
         }
+
+        public void RemoveConsent(GlobalUserData userData)
+        {
+            userData.CollectionConsent = null;
+        }
     }
 }

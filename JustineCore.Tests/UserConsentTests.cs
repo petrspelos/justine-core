@@ -45,6 +45,20 @@ namespace JustineCore.Tests
             Assert.IsTrue(dcc.GetUserConsented(userData));
         }
 
+        [Test]
+        public void UserRemoveConsentTest()
+        {
+            var userData = GetConsentedUser();
+            var dcc = new DataCollectionConsent();
+
+            Assert.IsTrue(dcc.GetUserConsented(userData));
+
+            dcc.RemoveConsent(userData);
+
+            Assert.IsFalse(dcc.GetUserConsented(userData));
+            Assert.IsNull(userData.CollectionConsent);
+        }
+
         private static GlobalUserData GetConsentedUser()
         {
             return new GlobalUserData
