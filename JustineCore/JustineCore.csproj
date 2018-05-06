@@ -10,8 +10,4 @@
     <PackageReference Include="Unity" Version="5.8.6" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Discord\Providers\" />
-  </ItemGroup>
-
 </Project>
