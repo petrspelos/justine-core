@@ -65,7 +65,16 @@ namespace JustineCore.Storage
 
         public IEnumerable<T> RestoreGroup<T>(string group)
         {
-            var files = Directory.GetFiles($"{StorageDirectory}/{group}", "*.json");
+            var files = new string[0];
+            try
+            {
+                files = Directory.GetFiles($"{StorageDirectory}/{group}", "*.json");
+            }
+            catch (DirectoryNotFoundException)
+            {
+                Directory.CreateDirectory($"{StorageDirectory}/{group}");
+            }
+
             try
             {
                 return files.Select(ObjectFromJsonFile<T>);
