@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using JustineCore.Storage;
 
@@ -35,6 +36,11 @@ namespace JustineCore.Tests.Helpers
         public T RestoreObject<T>(string group, string key)
         {
             return RestoreObject<T>($"{group}.{key}");
+        }
+
+        public IEnumerable<T> RestoreGroup<T>(string group)
+        {
+            return _storage.Where(e => e.Key.StartsWith(group)).Select(e => (T)e.Value);
         }
 
         public void StoreObject(object obj, string group, string key)

@@ -1,4 +1,6 @@
-﻿namespace JustineCore.Storage
+﻿using System.Collections.Generic;
+
+namespace JustineCore.Storage
 {
     public interface IDataStorage
     {
@@ -9,5 +11,7 @@
         T RestoreObject<T>(string key);
 
         T RestoreObject<T>(string group, string key);
+
+        IEnumerable<T> RestoreGroup<T>(string group);
     }
 }

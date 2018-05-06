@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace JustineCore.Storage
@@ -59,6 +61,25 @@ namespace JustineCore.Storage
                 throw new DataStorageGroupDoesNotExistException($"Group '{group}' not found.");
 
             return RestoreObject<T>($"{group}/{key}");
+        }
+
+        public IEnumerable<T> RestoreGroup<T>(string group)
+        {
+            var files = Directory.GetFiles($"{StorageDirectory}/{group}", "*.json");
+            try
+            {
+                return files.Select(ObjectFromJsonFile<T>);
+            }
+            catch (Exception)
+            {
+                return new List<T>();
+            }
+        }
+
+        private static T ObjectFromJsonFile<T>(string filePath)
+        {
+            var json = File.ReadAllText(filePath);
+            return JsonConvert.DeserializeObject<T>(json);
         }
     }
 
