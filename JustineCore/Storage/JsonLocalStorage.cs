@@ -4,11 +4,11 @@ using Newtonsoft.Json;
 
 namespace JustineCore.Storage
 {
-    internal class JsonLocalStorage : IDataStorage
+    public class JsonLocalStorage : IDataStorage
     {
         private const string StorageDirectory = "jsonStorage";
 
-        internal JsonLocalStorage()
+        public JsonLocalStorage()
         {
             if (!Directory.Exists(StorageDirectory))
             {

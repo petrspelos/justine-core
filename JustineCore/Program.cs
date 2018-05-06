@@ -14,7 +14,9 @@ namespace JustineCore
 
         private static async Task StartAsync(string[] args)
         {
-            var appConfig = new AppConfig(new JsonLocalStorage());
+            Unity.RegisterTypes();
+
+            var appConfig = Unity.Resolve<AppConfig>();
             var botConfigDefault = new DiscordBotConfig();
 
             var passedToken = args.Where(a => a.StartsWith("-t:")).Select(a => a.Substring(3)).FirstOrDefault();

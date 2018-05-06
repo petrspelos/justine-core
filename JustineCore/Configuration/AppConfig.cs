@@ -3,14 +3,14 @@ using JustineCore.Storage;
 
 namespace JustineCore.Configuration
 {
-    internal class AppConfig
+    public class AppConfig
     {
         internal DiscordBotConfig DiscordBotConfig;
 
         private readonly IDataStorage _dataStorage;
         private const string BotConfigKey = "botConfig";
 
-        internal AppConfig(IDataStorage dataStorage)
+        public AppConfig(IDataStorage dataStorage)
         {
             _dataStorage = dataStorage;
         }
