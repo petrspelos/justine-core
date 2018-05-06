@@ -76,6 +76,16 @@ namespace JustineCore.Storage
             }
         }
 
+        public void DeleteObject(string key)
+        {
+            File.Delete(GetJsonFilePathFromKey(key));
+        }
+        
+        public void DeleteObject(string group, string key)
+        {
+            DeleteObject($"{group}/{key}");
+        }
+
         private static T ObjectFromJsonFile<T>(string filePath)
         {
             var json = File.ReadAllText(filePath);

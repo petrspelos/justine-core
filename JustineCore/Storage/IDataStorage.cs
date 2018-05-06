@@ -13,5 +13,9 @@ namespace JustineCore.Storage
         T RestoreObject<T>(string group, string key);
 
         IEnumerable<T> RestoreGroup<T>(string group);
+
+        void DeleteObject(string key);
+
+        void DeleteObject(string group, string key);
     }
 }

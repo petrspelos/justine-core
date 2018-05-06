@@ -43,6 +43,17 @@ namespace JustineCore.Tests.Helpers
             return _storage.Where(e => e.Key.StartsWith(group)).Select(e => (T)e.Value);
         }
 
+        public void DeleteObject(string key)
+        {
+            if (!_storage.ContainsKey(key)) return;
+            _storage.Remove(key);
+        }
+
+        public void DeleteObject(string group, string key)
+        {
+            DeleteObject($"{group}.{key}");
+        }
+
         public void StoreObject(object obj, string group, string key)
         {
             StoreObject(obj, $"{group}.{key}");
