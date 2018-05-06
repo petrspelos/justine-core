@@ -1,6 +1,6 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Discord.Commands;
+using JustineCore.Discord.Preconditions;
 
 namespace JustineCore.Discord.Modules
 {
@@ -10,6 +10,13 @@ namespace JustineCore.Discord.Modules
         public async Task Greet()
         {
             await ReplyAsync($"Hey, {Context.User.Mention}!");
+        }
+
+        [Command("dataCommand")]
+        [RequireDataCollectionConsent]
+        public async Task DataCommand()
+        {
+            await ReplyAsync("Hey, you gave your consent!");
         }
     }
 }

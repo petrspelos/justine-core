@@ -36,7 +36,7 @@ namespace JustineCore.Discord.Handlers
 
                 if (!result.IsSuccess && result.Error != CommandError.UnknownCommand)
                 {
-                    await context.Channel.SendMessageAsync($"{context.User.Mention}, Error: {result.ErrorReason}");
+                    await context.Channel.SendMessageAsync($"{context.User.Mention}\n:negative_squared_cross_mark: **I couldn't complete the operation**\nApparently, {result.ErrorReason}");
                 }
             }
         }
