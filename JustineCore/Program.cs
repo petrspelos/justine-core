@@ -15,7 +15,7 @@ namespace JustineCore
         private static async Task StartAsync(string[] args)
         {
             Unity.RegisterTypes();
-
+            
             var appConfig = Unity.Resolve<AppConfig>();
             var botConfigDefault = new DiscordBotConfig();
 

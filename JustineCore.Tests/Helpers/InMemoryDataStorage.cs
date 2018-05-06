@@ -31,5 +31,15 @@ namespace JustineCore.Tests.Helpers
                 $"No object stored with the '{key}' key."
             );
         }
+
+        public T RestoreObject<T>(string group, string key)
+        {
+            return RestoreObject<T>($"{group}.{key}");
+        }
+
+        public void StoreObject(object obj, string group, string key)
+        {
+            StoreObject(obj, $"{group}.{key}");
+        }
     }
 }
