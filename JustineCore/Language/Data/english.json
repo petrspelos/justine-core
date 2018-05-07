@@ -1,0 +1,7 @@
+﻿{
+  "LanguageId": 0,
+  "LanguageName": "English",
+  "Resources": {
+    "TEST_STRING": "Hello, World!" 
+  } 
+}
