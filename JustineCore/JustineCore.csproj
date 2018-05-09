@@ -20,8 +20,4 @@
     <PackageReference Include="Unity" Version="5.8.6" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Discord\Features\" />
-  </ItemGroup>
-
 </Project>

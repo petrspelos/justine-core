@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using JustineCore.Entities;
 using JustineCore.Storage;
 
 namespace JustineCore.Tests.Helpers
@@ -52,6 +53,11 @@ namespace JustineCore.Tests.Helpers
         public void DeleteObject(string group, string key)
         {
             DeleteObject($"{group}.{key}");
+        }
+
+        public IEnumerable<JustineLanguage> GetLanguages()
+        {
+            throw new NotImplementedException();
         }
 
         public void StoreObject(object obj, string group, string key)

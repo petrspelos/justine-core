@@ -4,6 +4,8 @@ using System.Reflection;
 using Discord.WebSocket;
 using System.Threading.Tasks;
 using Discord.Commands;
+using JustineCore.Discord.Features;
+using JustineCore.Discord.Providers.UserData;
 using JustineCore.Language;
 using JustineCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,16 +25,20 @@ namespace JustineCore.Discord.Handlers
 
             var localization = Unity.Resolve<ILocalization>();
             var dataStorage = Unity.Resolve<IDataStorage>();
+            var globalUserDataProvider = Unity.Resolve<GlobalUserDataProvider>();
 
             _services = new ServiceCollection()
                 .AddSingleton(client)
                 .AddSingleton(_commandService)
                 .AddSingleton(localization)
                 .AddSingleton(dataStorage)
+                .AddSingleton(globalUserDataProvider)
                 .BuildServiceProvider();
 
             await _commandService.AddModulesAsync(Assembly.GetEntryAssembly());
             _client.MessageReceived += HandleCommandAsync;
+
+            _client.ReactionAdded += DmDeletions.CheckDeletionRequest;
         }
 
         private async Task HandleCommandAsync(SocketMessage s)
@@ -44,7 +50,7 @@ namespace JustineCore.Discord.Handlers
             if (context.User.IsBot) return;
             
             var argPos = 0;
-            if (msg.HasMentionPrefix(_client.CurrentUser, ref argPos))
+            if (msg.HasMentionPrefix(_client.CurrentUser, ref argPos) || msg.HasStringPrefix("dbg ", ref argPos))
             {
                 await TryRunAsBotCommand(context, argPos);
             }
@@ -59,7 +65,7 @@ namespace JustineCore.Discord.Handlers
 
             if (!result.IsSuccess && result.Error != CommandError.UnknownCommand)
             {
-                await context.Channel.SendMessageAsync($"{context.User.Mention}\n:negative_squared_cross_mark: **I couldn't complete the operation**\nApparently, {result.ErrorReason}");
+                await context.Channel.SendMessageAsync($":anger: **Couldn't complete the operation**\nApparently, {result.ErrorReason}");
             }
         }
     }

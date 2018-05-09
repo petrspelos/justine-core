@@ -13,20 +13,22 @@ namespace JustineCore.Discord.Modules
     public class Privacy : ModuleBase<SocketCommandContext>
     {
         private readonly ILocalization _localization;
+        private readonly GlobalUserDataProvider _gudp;
 
-        public Privacy(ILocalization localization)
+        public Privacy(ILocalization localization, GlobalUserDataProvider gudp)
         {
             _localization = localization;
+            _gudp = gudp;
         }
 
-        [Command("I agree with my data being collected by Justine.")]
+        [Command("I agree with my data being collected")]
+        [Alias("I agree with my data being collected.")]
         [Summary("SUMMARY_DATA_ACCEPT")]
         public async Task GiveConsent()
         {
-            var gudp = Unity.Resolve<GlobalUserDataProvider>();
             var userId = Context.User.Id;
 
-            if (gudp.GlobalDataExists(userId)) return;
+            if (_gudp.GlobalDataExists(userId)) return;
 
             var consent = new DataConsent
             {
@@ -34,9 +36,9 @@ namespace JustineCore.Discord.Modules
                 MessageId = Context.Message.Id
             };
 
-            gudp.AddNewGlobalData(userId, consent);
+            _gudp.AddNewGlobalData(userId, consent);
             
-            await ReplyAsync(_localization.FromTemplate($"{Context.User.Mention}\n[PRIVACY_AGREE_RESPONSE]"));
+            await ReplyAsync(_localization.FromTemplate("[PRIVACY_MESSAGE_HEADER]\n\n[PRIVACY_AGREE_RESPONSE]\n\n[PRIVACY_CMD_HINT]"));
         }
 
         [Command("data-view")]
@@ -45,12 +47,11 @@ namespace JustineCore.Discord.Modules
         [RequireDataCollectionConsent]
         public async Task GetDataCopy(string arg = "")
         {
-            var gudp = Unity.Resolve<GlobalUserDataProvider>();
             var userId = Context.User.Id;
 
-            if (!gudp.GlobalDataExists(userId)) return;
+            if (!_gudp.GlobalDataExists(userId)) return;
 
-            var data = gudp.GetGlobalUserData(userId);
+            var data = _gudp.GetGlobalUserData(userId);
             var json = JsonConvert.SerializeObject(data, Formatting.Indented);
 
             var template = _localization.FromTemplate($"{Context.User.Mention}\n[PRIVACY_DATA_REPORT_TEMPLATE(@DATA)]");
@@ -65,7 +66,7 @@ namespace JustineCore.Discord.Modules
 
             try
             {
-                await Context.User.SendMessageAsync(dataReport);
+                await Context.User.SendMessageAsync(_localization.FromTemplate($"{dataReport}\n[DM_DELETABLE]"));
                 await ReplyAsync(_localization.FromTemplate($"{Context.User.Mention}, [PRIVACY_DATA_REPORT_SUCCESS]"));
             }
             catch (Exception)
@@ -79,14 +80,13 @@ namespace JustineCore.Discord.Modules
         [RequireDataCollectionConsent]
         public async Task DeleteDataAndConsent()
         {
-            var gudp = Unity.Resolve<GlobalUserDataProvider>();
             var userId = Context.User.Id;
 
-            if (!gudp.GlobalDataExists(userId)) return;
+            if (!_gudp.GlobalDataExists(userId)) return;
 
-            gudp.DeleteUserGlobalData(userId);
+            _gudp.DeleteUserGlobalData(userId);
 
-            await ReplyAsync(_localization.FromTemplate($"{Context.User.Mention}\n[PRIVACY_DELETE_RESPONSE]"));
+            await ReplyAsync(_localization.FromTemplate($"[PRIVACY_MESSAGE_HEADER]\n\n[PRIVACY_DELETE_RESPONSE]"));
         }
     }
 }

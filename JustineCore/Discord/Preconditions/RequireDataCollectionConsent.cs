@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Discord.Commands;
 using JustineCore.Discord.Providers.UserData;
+using JustineCore.Language;
 
 namespace JustineCore.Discord.Preconditions
 {
@@ -10,12 +11,12 @@ namespace JustineCore.Discord.Preconditions
         public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
         {
             var gudp = Unity.Resolve<GlobalUserDataProvider>();
+            var localization = Unity.Resolve<ILocalization>();
             var userId = context.User.Id;
 
             if (!gudp.GlobalDataExists(userId))
             {
-                return Task.FromResult(PreconditionResult.FromError(
-                    "To use this command, I need your consent to data collection. Don't worry, you can get a copy of the collected data, or immediately delete it at any time.\nTo give consent, you need to mention me and say: `I agree with my data being collected by Justine.`. Make sure you mention me first and put a single space after the mention."));
+                return Task.FromResult(PreconditionResult.FromError(localization.FromTemplate("[PRECONDITION_COLLECTION_DENIED]")));
             }
 
             return Task.FromResult(PreconditionResult.FromSuccess());
