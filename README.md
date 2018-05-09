@@ -1,4 +1,4 @@
-# Discord Community bot
+# Justine Core BOT
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/petrspelos/justine-core/blob/master/LICENSE)
 
 This is **Justine BOT**.
