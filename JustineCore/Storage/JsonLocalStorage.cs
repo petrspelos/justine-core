@@ -2,13 +2,16 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using JustineCore.Entities;
 using Newtonsoft.Json;
+using JustineCore.Storage.Helpers;
 
 namespace JustineCore.Storage
 {
     public class JsonLocalStorage : IDataStorage
     {
         private const string StorageDirectory = "jsonStorage";
+        private const string LanguagesDirectory = "Language/Data";
 
         public JsonLocalStorage()
         {
@@ -77,7 +80,7 @@ namespace JustineCore.Storage
 
             try
             {
-                return files.Select(ObjectFromJsonFile<T>);
+                return files.Select(Json.ObjectFromJsonFile<T>);
             }
             catch (Exception)
             {
@@ -95,44 +98,10 @@ namespace JustineCore.Storage
             DeleteObject($"{group}/{key}");
         }
 
-        private static T ObjectFromJsonFile<T>(string filePath)
+        public IEnumerable<JustineLanguage> GetLanguages()
         {
-            var json = File.ReadAllText(filePath);
-            return JsonConvert.DeserializeObject<T>(json);
-        }
-    }
-
-    public class DataStorageKeyDoesNotExistException : Exception
-    {
-        public DataStorageKeyDoesNotExistException()
-        {
-        }
-
-        public DataStorageKeyDoesNotExistException(string message)
-            : base(message)
-        {
-        }
-
-        public DataStorageKeyDoesNotExistException(string message, Exception inner)
-            : base(message, inner)
-        {
-        }
-    }
-
-    public class DataStorageGroupDoesNotExistException : Exception
-    {
-        public DataStorageGroupDoesNotExistException()
-        {
-        }
-
-        public DataStorageGroupDoesNotExistException(string message)
-            : base(message)
-        {
-        }
-
-        public DataStorageGroupDoesNotExistException(string message, Exception inner)
-            : base(message, inner)
-        {
+            var langFiles = Directory.GetFiles(LanguagesDirectory, "*.json");
+            return langFiles.Select(f => f.ParseAsJsonFilePath<JustineLanguage>());
         }
     }
 }

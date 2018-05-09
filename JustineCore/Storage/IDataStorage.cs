@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using JustineCore.Entities;
 
 namespace JustineCore.Storage
 {
@@ -17,5 +18,7 @@ namespace JustineCore.Storage
         void DeleteObject(string key);
 
         void DeleteObject(string group, string key);
+
+        IEnumerable<JustineLanguage> GetLanguages();
     }
 }
