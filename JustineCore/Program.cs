@@ -1,8 +1,9 @@
-﻿using System.Linq;
+﻿using JustineCore.Configuration;
+using JustineCore.Entities;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JustineCore.Configuration;
-using JustineCore.Entities;
+
 #pragma warning disable 4014
 
 namespace JustineCore
@@ -14,7 +15,7 @@ namespace JustineCore
         private static async Task StartAsync(string[] args)
         {
             Unity.RegisterTypes();
-            
+
             var appConfig = Unity.Resolve<AppConfig>();
             var botConfigDefault = new DiscordBotConfig();
 

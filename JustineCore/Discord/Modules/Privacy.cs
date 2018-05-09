@@ -1,17 +1,24 @@
-﻿using System;
-using System.Threading.Tasks;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
 using JustineCore.Discord.Preconditions;
 using JustineCore.Discord.Providers.UserData;
 using JustineCore.Entities;
 using JustineCore.Language;
 using Newtonsoft.Json;
+using System;
+using System.Threading.Tasks;
 
 namespace JustineCore.Discord.Modules
 {
     public class Privacy : ModuleBase<SocketCommandContext>
     {
+        private readonly ILocalization _localization;
+
+        public Privacy(ILocalization localization)
+        {
+            _localization = localization;
+        }
+
         [Command("I agree with my data being collected by Justine.")]
         [Summary("SUMMARY_DATA_ACCEPT")]
         public async Task GiveConsent()
@@ -29,7 +36,7 @@ namespace JustineCore.Discord.Modules
 
             gudp.AddNewGlobalData(userId, consent);
             
-            await ReplyAsync($"{Context.User.Mention}\n{Localization.GetResource("PRIVACY_AGREE_RESPONSE")}");
+            await ReplyAsync(_localization.FromTemplate($"{Context.User.Mention}\n[PRIVACY_AGREE_RESPONSE]"));
         }
 
         [Command("data-view")]
@@ -45,8 +52,10 @@ namespace JustineCore.Discord.Modules
 
             var data = gudp.GetGlobalUserData(userId);
             var json = JsonConvert.SerializeObject(data, Formatting.Indented);
-            
-            var dataReport = string.Format($"{Context.User.Mention}\n{Localization.GetResource("PRIVACY_DATA_REPORT_TEMPLATE(@DATA)")}", json);
+
+            var template = _localization.FromTemplate($"{Context.User.Mention}\n[PRIVACY_DATA_REPORT_TEMPLATE(@DATA)]");
+
+            var dataReport = string.Format(template, json);
 
             if (arg == "public")
             {
@@ -57,11 +66,11 @@ namespace JustineCore.Discord.Modules
             try
             {
                 await Context.User.SendMessageAsync(dataReport);
-                await ReplyAsync($"{Context.User.Mention}, {Localization.GetResource("PRIVACY_DATA_REPORT_SUCCESS")}");
+                await ReplyAsync(_localization.FromTemplate($"{Context.User.Mention}, [PRIVACY_DATA_REPORT_SUCCESS]"));
             }
             catch (Exception)
             {
-                await ReplyAsync(Localization.GetResource("PRIVACY_DATA_REPORT_FAIL"));
+                await ReplyAsync(_localization.GetResource("PRIVACY_DATA_REPORT_FAIL"));
             }
         }
 
@@ -77,7 +86,7 @@ namespace JustineCore.Discord.Modules
 
             gudp.DeleteUserGlobalData(userId);
 
-            await ReplyAsync($"{Context.User.Mention}\n{Localization.GetResource("PRIVACY_DELETE_RESPONSE")}");
+            await ReplyAsync(_localization.FromTemplate($"{Context.User.Mention}\n[PRIVACY_DELETE_RESPONSE]"));
         }
     }
 }

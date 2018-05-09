@@ -1,5 +1,7 @@
-﻿using JustineCore.Storage;
+﻿using JustineCore.Language;
+using JustineCore.Storage;
 using Unity;
+using Unity.Lifetime;
 using Unity.Resolution;
 
 namespace JustineCore
@@ -21,7 +23,8 @@ namespace JustineCore
         public static void RegisterTypes()
         {
             _container = new UnityContainer();
-            _container.RegisterType<IDataStorage, JsonLocalStorage>();
+            _container.RegisterType<ILocalization, JsonLocalization>(new ContainerControlledLifetimeManager());
+            _container.RegisterType<IDataStorage, JsonLocalStorage>(new ContainerControlledLifetimeManager());
         }
 
         public static T Resolve<T>()

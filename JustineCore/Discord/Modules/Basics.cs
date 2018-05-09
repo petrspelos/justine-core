@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Discord.Commands;
 using JustineCore.Discord.Preconditions;
+using JustineCore.Language;
 
 namespace JustineCore.Discord.Modules
 {
