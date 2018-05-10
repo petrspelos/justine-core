@@ -50,7 +50,7 @@ namespace JustineCore.Discord.Handlers
             if (context.User.IsBot) return;
             
             var argPos = 0;
-            if (msg.HasMentionPrefix(_client.CurrentUser, ref argPos) || msg.HasStringPrefix("dbg ", ref argPos))
+            if (msg.HasMentionPrefix(_client.CurrentUser, ref argPos))
             {
                 await TryRunAsBotCommand(context, argPos);
             }
