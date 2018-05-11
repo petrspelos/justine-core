@@ -1,6 +1,4 @@
 ﻿using JustineCore.Configuration;
-using JustineCore.Entities;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,6 +10,7 @@ namespace JustineCore
     {
         private static async Task Main(string[] args)
         {
+            Discord.Logger.Log("=== Justine Core started. ===");
             Unity.RegisterTypes();
 
             var appConfig = Unity.Resolve<AppConfig>();

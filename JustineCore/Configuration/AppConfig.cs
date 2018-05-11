@@ -1,6 +1,8 @@
-﻿using JustineCore.Entities;
+﻿using System;
+using JustineCore.Entities;
 using JustineCore.Storage;
 using System.Linq;
+using JustineCore.Discord;
 
 namespace JustineCore.Configuration
 {
@@ -14,7 +16,7 @@ namespace JustineCore.Configuration
         public AppConfig(IDataStorage storage)
         {
             _storage = storage;
-            DiscordBotConfig = new DiscordBotConfig();
+            LoadStoredBotConfig();
         }
 
         /// <summary>
@@ -25,9 +27,11 @@ namespace JustineCore.Configuration
             try
             {
                 DiscordBotConfig = _storage.Get<DiscordBotConfig>(BotConfigKey);
+                Logger.Log("[Configuration] Loaded botConfig.json.");
             }
             catch (DataStorageKeyDoesNotExistException)
             {
+                Logger.Log("[Configuration] No botConfig.json found. Defaulting to a new config.");
                 DiscordBotConfig = new DiscordBotConfig();
                 StoreCurrentBotConfig();
             }
@@ -48,6 +52,7 @@ namespace JustineCore.Configuration
         private void StoreCurrentBotConfig()
         {
             _storage.Store(DiscordBotConfig, BotConfigKey);
+            Logger.Log("[Configuration] Saved current botConfig.json for future boots.");
         }
     }
 }

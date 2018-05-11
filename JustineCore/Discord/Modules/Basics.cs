@@ -18,5 +18,22 @@ namespace JustineCore.Discord.Modules
         {
             await ReplyAsync("Hey, you gave your consent!");
         }
+
+        [Command("log clear")]
+        [RequireOwner]
+        public async Task ClearLog()
+        {
+            await ReplyAsync("The ClearLog request has been sent.");
+            Logger.ClearLog();
+            Logger.Log($"[Logger] The runtime.log has been cleared by '{Context.User.Username}' ({Context.User.Id})");
+        }
+
+        [Command("log get")]
+        [RequireOwner]
+        public async Task GetLog()
+        {
+            Logger.Log($"[Logger] The runtime.log is being sent to '{Context.User.Username}' ({Context.User.Id})");
+            await Context.Channel.SendFileAsync("runtime.log");
+        }
     }
 }

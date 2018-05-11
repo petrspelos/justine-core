@@ -6,6 +6,7 @@ using JustineCore.Language;
 using JustineCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -60,6 +61,8 @@ namespace JustineCore.Discord.Handlers
         {
             var cmdSearchResult = _commandService.Search(context, argPos);
             if (cmdSearchResult.Commands.Count == 0) return;
+
+            Logger.Log($"[Command] {context.User.Username} is running '{cmdSearchResult.Commands.FirstOrDefault().Command.Name}' - Full message: '{context.Message.Content}'");
 
             var result = await _commandService.ExecuteAsync(context, argPos, _services);
 

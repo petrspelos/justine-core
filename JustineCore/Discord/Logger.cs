@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Discord;
 
@@ -6,13 +7,31 @@ namespace JustineCore.Discord
 {
     internal static class Logger
     {
+        static Logger()
+        {
+            if (!File.Exists("runtime.log")) File.Create("runtime.log");
+        }
+
         internal static Task Log(LogMessage logMessage)
         {
-            Console.ForegroundColor = SeverityToConsoleColor(logMessage.Severity);
-            var message = $"{DateTime.Now.ToShortTimeString()} [{logMessage.Source}] {logMessage.Message}";
-            Console.WriteLine(message);
-            Console.ResetColor();
+            var color = SeverityToConsoleColor(logMessage.Severity);
+            var message = $"[{logMessage.Source}] {logMessage.Message}";
+            Log(message, color);
             return Task.CompletedTask;
+        }
+
+        internal static void Log(string message, ConsoleColor color = ConsoleColor.White)
+        {
+            Console.ForegroundColor = color;
+            Console.WriteLine($"{DateTime.Now.ToLongTimeString()} - {message}");
+            Console.ResetColor();
+
+            File.AppendAllText("runtime.log", $"\n{DateTime.Now.ToLongTimeString()} - {message}");
+        }
+
+        internal static void ClearLog()
+        {
+            File.WriteAllText("runtime.log", "");
         }
 
         private static ConsoleColor SeverityToConsoleColor(LogSeverity severity)
