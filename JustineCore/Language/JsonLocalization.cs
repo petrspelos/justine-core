@@ -48,7 +48,7 @@ namespace JustineCore.Language
         /// <param name="template">The string containing language resource keys enclosed in square brackets. [MY_KEY]</param>
         /// <param name="languageId">The ID of a language to be used. (Defaults to 0)</param>
         /// <returns>String with language resource key replaced with their values.</returns>
-        public string FromTemplate(string template, int languageId = 0)
+        public string Resolve(string template, int languageId = 0)
         {
             var regex = new Regex(@"\[([A-Z_@\(\)]*?)\]", RegexOptions.IgnoreCase);
             var matches = regex.Matches(template);
@@ -59,6 +59,12 @@ namespace JustineCore.Language
             }
 
             return template;
+        }
+
+        public string FromTemplate(string key, int languageId = 0, params object[] objects)
+        {
+            var template = GetResource(key, languageId);
+            return string.Format(template, objects);
         }
 
         private string GetResourceSafe(string key, int languageId = 0)

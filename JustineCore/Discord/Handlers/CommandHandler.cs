@@ -1,14 +1,13 @@
-﻿using System;
-using System.ComponentModel.Design;
-using System.Reflection;
+﻿using Discord.Commands;
 using Discord.WebSocket;
-using System.Threading.Tasks;
-using Discord.Commands;
 using JustineCore.Discord.Features;
 using JustineCore.Discord.Providers.UserData;
 using JustineCore.Language;
 using JustineCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace JustineCore.Discord.Handlers
 {
@@ -17,20 +16,21 @@ namespace JustineCore.Discord.Handlers
         private DiscordSocketClient _client;
         private CommandService _commandService;
         private IServiceProvider _services;
+        private ILocalization _lang;
 
         internal async Task InitializeAsync(DiscordSocketClient client)
         {
             _client = client;
             _commandService = new CommandService();
 
-            var localization = Unity.Resolve<ILocalization>();
+            _lang = Unity.Resolve<ILocalization>();
             var dataStorage = Unity.Resolve<IDataStorage>();
             var globalUserDataProvider = Unity.Resolve<GlobalUserDataProvider>();
 
             _services = new ServiceCollection()
                 .AddSingleton(client)
                 .AddSingleton(_commandService)
-                .AddSingleton(localization)
+                .AddSingleton(_lang)
                 .AddSingleton(dataStorage)
                 .AddSingleton(globalUserDataProvider)
                 .BuildServiceProvider();
@@ -65,7 +65,8 @@ namespace JustineCore.Discord.Handlers
 
             if (!result.IsSuccess && result.Error != CommandError.UnknownCommand)
             {
-                await context.Channel.SendMessageAsync($":anger: **Couldn't complete the operation**\nApparently, {result.ErrorReason}");
+                var exceptionMessage = _lang.FromTemplate("EXCEPTION_RESPONSE_TEMPLATE(@REASON)", objects: result.ErrorReason);
+                await context.Channel.SendMessageAsync(exceptionMessage);
             }
         }
     }

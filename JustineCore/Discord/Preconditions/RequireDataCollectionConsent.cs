@@ -16,7 +16,7 @@ namespace JustineCore.Discord.Preconditions
 
             if (!gudp.GlobalDataExists(userId))
             {
-                return Task.FromResult(PreconditionResult.FromError(localization.FromTemplate("[PRECONDITION_COLLECTION_DENIED]")));
+                return Task.FromResult(PreconditionResult.FromError(localization.Resolve("[PRECONDITION_COLLECTION_DENIED]")));
             }
 
             return Task.FromResult(PreconditionResult.FromSuccess());
