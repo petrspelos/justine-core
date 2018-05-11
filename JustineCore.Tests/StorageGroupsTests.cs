@@ -12,10 +12,10 @@ namespace JustineCore.Tests
             const string expectedB = "Hey2";
 
             var ds = TestUnity.Resolve<IDataStorage>();
-            ds.StoreObject(expectedA, "MyFirstGroup", "Message");
-            ds.StoreObject(expectedB, "MySecondGroup", "Message");
-            Assert.AreEqual(expectedA, ds.RestoreObject<string>("MyFirstGroup", "Message"));
-            Assert.AreEqual(expectedB, ds.RestoreObject<string>("MySecondGroup", "Message"));
+            ds.Store(expectedA, "MyFirstGroup", "Message");
+            ds.Store(expectedB, "MySecondGroup", "Message");
+            Assert.AreEqual(expectedA, ds.Get<string>("MyFirstGroup", "Message"));
+            Assert.AreEqual(expectedB, ds.Get<string>("MySecondGroup", "Message"));
         }
     }
 }

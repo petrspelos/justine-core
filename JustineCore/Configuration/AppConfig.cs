@@ -1,5 +1,6 @@
 ﻿using JustineCore.Entities;
 using JustineCore.Storage;
+using System.Linq;
 
 namespace JustineCore.Configuration
 {
@@ -7,35 +8,46 @@ namespace JustineCore.Configuration
     {
         internal DiscordBotConfig DiscordBotConfig;
 
-        private readonly IDataStorage _dataStorage;
+        private readonly IDataStorage _storage;
         private const string BotConfigKey = "botConfig";
 
-        public AppConfig(IDataStorage dataStorage)
+        public AppConfig(IDataStorage storage)
         {
-            _dataStorage = dataStorage;
+            _storage = storage;
+            DiscordBotConfig = new DiscordBotConfig();
         }
 
         /// <summary>
-        /// Returns stored config. If none is found, creates a new one, saves and returns it.
+        /// Loads stored configuration settings for the Discord bot. Creates a new one if none found.
         /// </summary>
-        /// <param name="backup">Instance of DiscordBotConfig to be used instead of new DiscordBotConfig();</param>
-        /// <returns>Stored or newly stored DiscordBotConfig</returns>
-        internal void LoadStoredBotConfig(DiscordBotConfig backup = null)
+        internal void LoadStoredBotConfig()
         {
             try
             {
-                DiscordBotConfig = _dataStorage.RestoreObject<DiscordBotConfig>(BotConfigKey);
+                DiscordBotConfig = _storage.Get<DiscordBotConfig>(BotConfigKey);
             }
             catch (DataStorageKeyDoesNotExistException)
             {
-                DiscordBotConfig = backup ?? new DiscordBotConfig();
-                OverwriteBotConfig(DiscordBotConfig);
+                DiscordBotConfig = new DiscordBotConfig();
+                StoreCurrentBotConfig();
             }
         }
 
-        private void OverwriteBotConfig(DiscordBotConfig newConfig)
+        internal void ApplyArguments(string[] args)
         {
-            _dataStorage.StoreObject(newConfig, BotConfigKey);
+            var passedToken = args
+                .Where(a => a.StartsWith("-t:"))
+                .Select(a => a.Substring(3))
+                .FirstOrDefault();
+
+            if (passedToken is null) return;
+            DiscordBotConfig.Token = passedToken;
+            if (args.Contains("-f")) StoreCurrentBotConfig();
+        }
+
+        private void StoreCurrentBotConfig()
+        {
+            _storage.Store(DiscordBotConfig, BotConfigKey);
         }
     }
 }

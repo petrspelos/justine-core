@@ -31,7 +31,7 @@ namespace JustineCore.Discord.Providers.UserData
             };
 
             var key = string.Format(GlobalDataKeyFormat, userId);
-            _dataStorage.StoreObject(newUserData, GlobalDataGroup, key);
+            _dataStorage.Store(newUserData, GlobalDataGroup, key);
 
             _globalUserDatas.Add(newUserData);
         }
@@ -45,7 +45,7 @@ namespace JustineCore.Discord.Providers.UserData
             try
             {
                 _globalUserDatas.Remove(GetGlobalUserData(userId));
-                _dataStorage.DeleteObject(GlobalDataGroup, key);
+                _dataStorage.Delete(GlobalDataGroup, key);
             }
             catch (Exception e)
             {
@@ -65,7 +65,7 @@ namespace JustineCore.Discord.Providers.UserData
 
         private void LoadGlobalUserData()
         {
-            _globalUserDatas = _dataStorage.RestoreGroup<GlobalUserData>(GlobalDataGroup).ToList();
+            _globalUserDatas = _dataStorage.GetGroup<GlobalUserData>(GlobalDataGroup).ToList();
         }
     }
 }

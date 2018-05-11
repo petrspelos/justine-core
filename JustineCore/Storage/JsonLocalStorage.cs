@@ -21,7 +21,7 @@ namespace JustineCore.Storage
             }
         }
         
-        public void StoreObject(object obj, string key)
+        public void Store(object obj, string key)
         {
             var json = JsonConvert.SerializeObject(obj);
             var filePath = GetJsonFilePathFromKey(key);
@@ -29,7 +29,7 @@ namespace JustineCore.Storage
             File.WriteAllText(filePath, json);
         }
 
-        public T RestoreObject<T>(string key)
+        public T Get<T>(string key)
         {
             var filePath = GetJsonFilePathFromKey(key);
 
@@ -51,22 +51,22 @@ namespace JustineCore.Storage
             return $"{StorageDirectory}/{file}.json";
         }
 
-        public void StoreObject(object obj, string group, string key)
+        public void Store(object obj, string group, string key)
         {
             var targetDirectory = $"{StorageDirectory}/{group}";
             if (!Directory.Exists(targetDirectory)) Directory.CreateDirectory(targetDirectory);
-            StoreObject(obj, $"{group}/{key}");
+            Store(obj, $"{group}/{key}");
         }
 
-        public T RestoreObject<T>(string group, string key)
+        public T Get<T>(string group, string key)
         {
             if(!Directory.Exists($"{StorageDirectory}/{group}"))
                 throw new DataStorageGroupDoesNotExistException($"Group '{group}' not found.");
 
-            return RestoreObject<T>($"{group}/{key}");
+            return Get<T>($"{group}/{key}");
         }
 
-        public IEnumerable<T> RestoreGroup<T>(string group)
+        public IEnumerable<T> GetGroup<T>(string group)
         {
             var files = new string[0];
             try
@@ -88,14 +88,14 @@ namespace JustineCore.Storage
             }
         }
 
-        public void DeleteObject(string key)
+        public void Delete(string key)
         {
             File.Delete(GetJsonFilePathFromKey(key));
         }
         
-        public void DeleteObject(string group, string key)
+        public void Delete(string group, string key)
         {
-            DeleteObject($"{group}/{key}");
+            Delete($"{group}/{key}");
         }
 
         public IEnumerable<JustineLanguage> GetLanguages()

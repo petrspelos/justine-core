@@ -10,22 +10,13 @@ namespace JustineCore
 {
     internal class Program
     {
-        private static void Main(string[] args) => StartAsync(args).GetAwaiter().GetResult();
-
-        private static async Task StartAsync(string[] args)
+        private static async Task Main(string[] args)
         {
             Unity.RegisterTypes();
 
             var appConfig = Unity.Resolve<AppConfig>();
-            var botConfigDefault = new DiscordBotConfig();
-
-            var passedToken = args.Where(a => a.StartsWith("-t:")).Select(a => a.Substring(3)).FirstOrDefault();
-            if (passedToken != null) botConfigDefault.Token = passedToken;
-
-            appConfig.LoadStoredBotConfig(botConfigDefault);
-
-            if (passedToken != null && args.Contains("-f")) appConfig.DiscordBotConfig.Token = passedToken;
-
+            appConfig.ApplyArguments(args);
+            
             var discordConnection = new Discord.Connection();
 
             await discordConnection.ConnectAsync(appConfig.DiscordBotConfig, CancellationToken.None);

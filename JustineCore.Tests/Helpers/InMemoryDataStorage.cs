@@ -16,7 +16,7 @@ namespace JustineCore.Tests.Helpers
             _storage = new Dictionary<string, object>();
         }
 
-        public void StoreObject(object obj, string key)
+        public void Store(object obj, string key)
         {
             if (_storage.ContainsKey(key))
                 _storage[key] = obj;
@@ -24,7 +24,7 @@ namespace JustineCore.Tests.Helpers
                 _storage.Add(key, obj);
         }
 
-        public T RestoreObject<T>(string key)
+        public T Get<T>(string key)
         {
             if (_storage.ContainsKey(key))
                 return (T)_storage[key];
@@ -34,25 +34,25 @@ namespace JustineCore.Tests.Helpers
             );
         }
 
-        public T RestoreObject<T>(string group, string key)
+        public T Get<T>(string group, string key)
         {
-            return RestoreObject<T>($"{group}.{key}");
+            return Get<T>($"{group}.{key}");
         }
 
-        public IEnumerable<T> RestoreGroup<T>(string group)
+        public IEnumerable<T> GetGroup<T>(string group)
         {
             return _storage.Where(e => e.Key.StartsWith(group)).Select(e => (T)e.Value);
         }
 
-        public void DeleteObject(string key)
+        public void Delete(string key)
         {
             if (!_storage.ContainsKey(key)) return;
             _storage.Remove(key);
         }
 
-        public void DeleteObject(string group, string key)
+        public void Delete(string group, string key)
         {
-            DeleteObject($"{group}.{key}");
+            Delete($"{group}.{key}");
         }
 
         public IEnumerable<JustineLanguage> GetLanguages()
@@ -60,9 +60,9 @@ namespace JustineCore.Tests.Helpers
             throw new NotImplementedException();
         }
 
-        public void StoreObject(object obj, string group, string key)
+        public void Store(object obj, string group, string key)
         {
-            StoreObject(obj, $"{group}.{key}");
+            Store(obj, $"{group}.{key}");
         }
     }
 }
