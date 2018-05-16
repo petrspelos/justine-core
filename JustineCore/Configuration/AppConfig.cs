@@ -1,14 +1,15 @@
-﻿using System;
+﻿using FluentScheduler;
+using JustineCore.Discord;
 using JustineCore.Entities;
 using JustineCore.Storage;
 using System.Linq;
-using JustineCore.Discord;
+using static JustineCore.Utility;
 
 namespace JustineCore.Configuration
 {
     public class AppConfig
     {
-        internal DiscordBotConfig DiscordBotConfig;
+        internal static DiscordBotConfig DiscordBotConfig;
 
         private readonly IDataStorage _storage;
         private const string BotConfigKey = "botConfig";
@@ -49,9 +50,10 @@ namespace JustineCore.Configuration
             if (args.Contains("-f")) StoreCurrentBotConfig();
         }
 
-        private void StoreCurrentBotConfig()
+        internal static void StoreCurrentBotConfig()
         {
-            _storage.Store(DiscordBotConfig, BotConfigKey);
+            var stg = Unity.Resolve<IDataStorage>();
+            stg.Store(DiscordBotConfig, BotConfigKey);
             Logger.Log("[Configuration] Saved current botConfig.json for future boots.");
         }
     }

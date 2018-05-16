@@ -1,11 +1,14 @@
-﻿using System.Net;
-using System.Threading;
-using Discord.WebSocket;
-using JustineCore.Entities;
-using System.Threading.Tasks;
-using Discord;
+﻿using Discord;
 using Discord.Net;
+using Discord.WebSocket;
+using JustineCore.Configuration;
+using JustineCore.Discord.Features.Payloads;
 using JustineCore.Discord.Handlers;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
+using FluentScheduler;
+using static JustineCore.Utility;
 
 namespace JustineCore.Discord
 {
@@ -14,9 +17,17 @@ namespace JustineCore.Discord
         private DiscordSocketClient _client;
         private CommandHandler _commandHandler;
 
-        public async Task ConnectAsync(DiscordBotConfig botConfig, CancellationToken cancellationToken)
+        internal async Task NotifyOwner(string message)
         {
-            if(botConfig.Token == null)
+            if(_client.ConnectionState != ConnectionState.Connected) return;
+            var owner = _client.GetUser(182941761801420802);
+            var dm = await owner.GetOrCreateDMChannelAsync();
+            await dm.SendMessageAsync(message);
+        }
+        
+        public async Task ConnectAsync(AppConfig appConfig, CancellationToken cancellationToken)
+        {
+            if (AppConfig.DiscordBotConfig.Token == null)
                 throw new TokenNotSetException("Discord bot token is null.");
 
             var socketConfig = new DiscordSocketConfig
@@ -32,7 +43,7 @@ namespace JustineCore.Discord
 
             try
             {
-                await _client.LoginAsync(TokenType.Bot, botConfig.Token);
+                await _client.LoginAsync(TokenType.Bot, AppConfig.DiscordBotConfig.Token);
             }
             catch (HttpException e)
             {
@@ -44,10 +55,34 @@ namespace JustineCore.Discord
 
             await _client.StartAsync();
 
+            RegisterScheduledMessages();
+
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
             }
+        }
+
+        private void RegisterScheduledMessages()
+        {
+            foreach (var sm in AppConfig.DiscordBotConfig.ScheduledMessages)
+            {
+                ExecuteEveryDayAt(() => { ExecuteScheduledMessage(sm); }, sm.Hour, sm.Minute);
+            }
+        }
+
+        private void ExecuteScheduledMessage(ScheduledMessage sm)
+        {
+            foreach (var p in sm.Payloads)
+            {
+                p.Send(_client);
+            }
+        }
+
+        internal void ReloadAllScheduledTasks()
+        {
+            JobManager.RemoveAllJobs();
+            RegisterScheduledMessages();
         }
     }
 }

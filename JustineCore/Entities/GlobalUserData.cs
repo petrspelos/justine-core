@@ -1,4 +1,7 @@
-﻿namespace JustineCore.Entities
+﻿using System.Collections.Generic;
+using JustineCore.Discord.Features.Payloads;
+
+namespace JustineCore.Entities
 {
     public class GlobalUserData
     {
