@@ -72,6 +72,9 @@ namespace JustineCore.Discord.Modules
         [RequireOwner]
         public async Task GetConfig()
         {
+            if (AppConfig.DiscordBotConfig.ScheduledMessages.Count == 0)
+                await ReplyAsync("There are no scheduled messages.");
+
             var json = JsonConvert.SerializeObject(AppConfig.DiscordBotConfig.ScheduledMessages, Formatting.Indented);
 
             await ReplyAsync($"```json\n{json}\n```");
