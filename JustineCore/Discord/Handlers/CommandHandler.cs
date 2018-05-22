@@ -9,6 +9,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using JustineCore.Configuration;
 
 namespace JustineCore.Discord.Handlers
 {
@@ -25,15 +26,14 @@ namespace JustineCore.Discord.Handlers
             _commandService = new CommandService();
 
             _lang = Unity.Resolve<ILocalization>();
-            var dataStorage = Unity.Resolve<IDataStorage>();
-            var globalUserDataProvider = Unity.Resolve<GlobalUserDataProvider>();
 
             _services = new ServiceCollection()
                 .AddSingleton(client)
                 .AddSingleton(_commandService)
                 .AddSingleton(_lang)
-                .AddSingleton(dataStorage)
-                .AddSingleton(globalUserDataProvider)
+                .AddSingleton(Unity.Resolve<IDataStorage>())
+                .AddSingleton(Unity.Resolve<GlobalUserDataProvider>())
+                .AddSingleton(Unity.Resolve<AppConfig>())
                 .BuildServiceProvider();
 
             await _commandService.AddModulesAsync(Assembly.GetEntryAssembly());

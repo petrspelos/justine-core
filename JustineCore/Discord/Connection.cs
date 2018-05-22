@@ -12,10 +12,16 @@ using static JustineCore.Utility;
 
 namespace JustineCore.Discord
 {
-    internal class Connection
+    public class Connection
     {
         private DiscordSocketClient _client;
         private CommandHandler _commandHandler;
+        private readonly AppConfig _appConfig;
+
+        public Connection(AppConfig config)
+        {
+            _appConfig = config;
+        }
 
         internal async Task NotifyOwner(string message)
         {
@@ -25,9 +31,9 @@ namespace JustineCore.Discord
             await dm.SendMessageAsync(message);
         }
         
-        public async Task ConnectAsync(AppConfig appConfig, CancellationToken cancellationToken)
+        public async Task ConnectAsync(CancellationToken cancellationToken)
         {
-            if (AppConfig.DiscordBotConfig.Token == null)
+            if (_appConfig.DiscordBotConfig.Token == null)
                 throw new TokenNotSetException("Discord bot token is null.");
 
             var socketConfig = new DiscordSocketConfig
@@ -43,7 +49,7 @@ namespace JustineCore.Discord
 
             try
             {
-                await _client.LoginAsync(TokenType.Bot, AppConfig.DiscordBotConfig.Token);
+                await _client.LoginAsync(TokenType.Bot, _appConfig.DiscordBotConfig.Token);
             }
             catch (HttpException e)
             {
@@ -65,7 +71,7 @@ namespace JustineCore.Discord
 
         private void RegisterScheduledMessages()
         {
-            foreach (var sm in AppConfig.DiscordBotConfig.ScheduledMessages)
+            foreach (var sm in _appConfig.DiscordBotConfig.ScheduledMessages)
             {
                 ExecuteEveryDayAt(() => { ExecuteScheduledMessage(sm); }, sm.Hour, sm.Minute);
             }

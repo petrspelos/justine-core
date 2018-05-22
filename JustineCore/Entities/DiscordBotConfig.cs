@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using JustineCore.Discord.Features.Payloads;
+﻿using JustineCore.Discord.Features.Payloads;
+using System.Collections.Generic;
 
 namespace JustineCore.Entities
 {

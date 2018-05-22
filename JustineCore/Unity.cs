@@ -1,4 +1,5 @@
-﻿using JustineCore.Language;
+﻿using JustineCore.Configuration;
+using JustineCore.Language;
 using JustineCore.Storage;
 using Unity;
 using Unity.Lifetime;
@@ -25,6 +26,7 @@ namespace JustineCore
             _container = new UnityContainer();
             _container.RegisterType<ILocalization, JsonLocalization>(new ContainerControlledLifetimeManager());
             _container.RegisterType<IDataStorage, JsonLocalStorage>(new ContainerControlledLifetimeManager());
+            _container.RegisterType<AppConfig>(new ContainerControlledLifetimeManager());
         }
 
         public static T Resolve<T>()

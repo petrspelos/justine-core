@@ -3,7 +3,6 @@ using JustineCore.Configuration;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using static JustineCore.Utility;
 
 #pragma warning disable 4014
 
@@ -15,8 +14,6 @@ namespace JustineCore
 
         private static async Task Main(string[] args)
         {
-            Console.WriteLine(ResolvePlaceholders("today is <proper-date>!"));
-            
             JobManager.Initialize(new Registry());
 
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
@@ -27,16 +24,16 @@ namespace JustineCore
             var appConfig = Unity.Resolve<AppConfig>();
             appConfig.ApplyArguments(args);
             
-            Connection = new Discord.Connection();
+            Connection = Unity.Resolve<Discord.Connection>();
 
-            await Connection.ConnectAsync(appConfig, CancellationToken.None);
+            await Connection.ConnectAsync(CancellationToken.None);
         }
 
         private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
         {
             var exception = (Exception) unhandledExceptionEventArgs.ExceptionObject;
-            Connection.NotifyOwner($"Whops, I crashed!\n{exception.Message}");
             Discord.Logger.Log($"[Unhandled Exception] {exception.Message}");
+            Connection.NotifyOwner($"Whops, I crashed!\n{exception.Message}");
         }
     }
 }

@@ -1,17 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Discord.Commands;
-using JustineCore.Discord.Preconditions;
-using System.Threading.Tasks;
+﻿using Discord.Commands;
 using JustineCore.Configuration;
 using JustineCore.Discord.Features.Payloads;
+using JustineCore.Discord.Preconditions;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace JustineCore.Discord.Modules
 {
     public class Basics : ModuleBase<SocketCommandContext>
     {
+        private readonly AppConfig _appConfig;
+
+        public Basics(AppConfig appConfig)
+        {
+            _appConfig = appConfig;
+        }
+
         [Command("hello")]
         public async Task Greet()
         {
@@ -52,7 +59,7 @@ namespace JustineCore.Discord.Modules
         [RequireOwner]
         public async Task GetSchtasks()
         {
-            var schMessages = AppConfig.DiscordBotConfig.ScheduledMessages;
+            var schMessages = _appConfig.DiscordBotConfig.ScheduledMessages;
             var msg = new StringBuilder();
             foreach (var sm in schMessages)
             {
@@ -72,10 +79,10 @@ namespace JustineCore.Discord.Modules
         [RequireOwner]
         public async Task GetConfig()
         {
-            if (AppConfig.DiscordBotConfig.ScheduledMessages.Count == 0)
+            if (_appConfig.DiscordBotConfig.ScheduledMessages.Count == 0)
                 await ReplyAsync("There are no scheduled messages.");
 
-            var json = JsonConvert.SerializeObject(AppConfig.DiscordBotConfig.ScheduledMessages, Formatting.Indented);
+            var json = JsonConvert.SerializeObject(_appConfig.DiscordBotConfig.ScheduledMessages, Formatting.Indented);
 
             await ReplyAsync($"```json\n{json}\n```");
         }
@@ -107,8 +114,8 @@ namespace JustineCore.Discord.Modules
                 }
             }
 
-            AppConfig.DiscordBotConfig.ScheduledMessages = newSchtasks;
-            AppConfig.StoreCurrentBotConfig();
+            _appConfig.DiscordBotConfig.ScheduledMessages = newSchtasks;
+            _appConfig.StoreCurrentBotConfig();
             
             Program.Connection.ReloadAllScheduledTasks();
 
