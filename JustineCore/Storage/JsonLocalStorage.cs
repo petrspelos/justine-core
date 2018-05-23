@@ -28,7 +28,7 @@ namespace JustineCore.Storage
             
             File.WriteAllText(filePath, json);
         }
-
+        
         public T Get<T>(string key)
         {
             var filePath = GetJsonFilePathFromKey(key);

@@ -1,4 +1,5 @@
-﻿using JustineCore.Discord.Features.RPG;
+﻿using System;
+using JustineCore.Discord.Features.RPG;
 
 namespace JustineCore.Entities
 {

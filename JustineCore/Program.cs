@@ -28,7 +28,7 @@ namespace JustineCore
 
             await Connection.ConnectAsync(CancellationToken.None);
         }
-
+        
         private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
         {
             var exception = (Exception) unhandledExceptionEventArgs.ExceptionObject;

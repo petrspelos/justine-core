@@ -63,6 +63,12 @@ namespace JustineCore.Discord.Providers.UserData
             return _globalUserDatas.FirstOrDefault(d => d.DiscordId == userId);
         }
 
+        public void SaveGlobalUserData(GlobalUserData data)
+        {
+            var key = string.Format(GlobalDataKeyFormat, data.DiscordId);
+            _dataStorage.Store(data, GlobalDataGroup, key);
+        }
+
         private void LoadGlobalUserData()
         {
             _globalUserDatas = _dataStorage.GetGroup<GlobalUserData>(GlobalDataGroup).ToList();

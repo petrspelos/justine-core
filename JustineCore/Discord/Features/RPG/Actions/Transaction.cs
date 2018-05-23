@@ -27,5 +27,20 @@ namespace JustineCore.Discord.Features.RPG.Actions
                 });
             }
         }
+
+        /// <summary>
+        /// Adds an item based on item ID.
+        /// </summary>
+        public static void AddItemById(this RpgAccount account, uint itemId, uint amount)
+        {
+            var targetSlot = account.InventorySlots.FirstOrDefault(s => s.Item.Id == itemId);
+            if (targetSlot is null)
+            {
+                account.ForceAddItemById(itemId, amount);
+                return;
+            }
+
+            targetSlot.Amount += amount;
+        }
     }
 }

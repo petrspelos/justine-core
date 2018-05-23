@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using JustineCore.Configuration;
+using JustineCore.Discord.Features.RPG;
 
 namespace JustineCore.Discord.Handlers
 {
@@ -34,6 +35,7 @@ namespace JustineCore.Discord.Handlers
                 .AddSingleton(Unity.Resolve<IDataStorage>())
                 .AddSingleton(Unity.Resolve<GlobalUserDataProvider>())
                 .AddSingleton(Unity.Resolve<AppConfig>())
+                .AddSingleton(Unity.Resolve<RpgItemRepository>())
                 .BuildServiceProvider();
 
             await _commandService.AddModulesAsync(Assembly.GetEntryAssembly());

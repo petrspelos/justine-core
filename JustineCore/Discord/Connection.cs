@@ -33,8 +33,7 @@ namespace JustineCore.Discord
         
         public async Task ConnectAsync(CancellationToken cancellationToken)
         {
-            if (_appConfig.DiscordBotConfig.Token == null)
-                throw new TokenNotSetException("Discord bot token is null.");
+            ValidateToken();
 
             var socketConfig = new DiscordSocketConfig
             {
@@ -67,6 +66,12 @@ namespace JustineCore.Discord
             {
                 cancellationToken.ThrowIfCancellationRequested();
             }
+        }
+
+        private void ValidateToken()
+        {
+            if (_appConfig.DiscordBotConfig.Token == null)
+                throw new TokenNotSetException("Discord bot token is null.");
         }
 
         private void RegisterScheduledMessages()

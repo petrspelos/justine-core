@@ -1,10 +1,13 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
+using Discord.WebSocket;
 using JustineCore.Configuration;
 using JustineCore.Discord.Features.Payloads;
 using JustineCore.Discord.Preconditions;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,6 +20,32 @@ namespace JustineCore.Discord.Modules
         public Basics(AppConfig appConfig)
         {
             _appConfig = appConfig;
+        }
+
+        [Command("I accept the rules")]
+        [Alias("I accept the rules.")]
+        public async Task TutorialRulesAccept()
+        {
+            if (Context.Guild.Id != 377879473158356992) return;
+
+            var targetUser = (SocketGuildUser) Context.User;
+
+            var memberRole = Context.Guild.GetRole(411865173318696961);
+
+            if (targetUser.Roles.Any(r => r.Id == 411865173318696961)) return;
+            
+            await targetUser.AddRoleAsync(memberRole);
+
+            var general = Context.Guild.GetTextChannel(377879473644765185);
+
+            var embed = new EmbedBuilder();
+            embed.WithTitle($"Welcome to {Context.Guild.Name}");
+            embed.WithImageUrl(Context.User.GetAvatarUrl());
+            embed.WithColor(Color.Green);
+            embed.AddField($"Hello, {targetUser.Nickname??targetUser.Username}!", "Please make sure to checkout the channels that have been unlocked for you.");
+            embed.AddField("Having a problem?", "Checkout #common-issues and see if the solution isn't right there!");
+
+            await general.SendMessageAsync(Context.User.Mention, embed: embed.Build());
         }
 
         [Command("hello")]

@@ -14,5 +14,13 @@ namespace JustineCore.Discord.Features.RPG.Actions
         {
             return account.InventorySlots.Any(s => s.Amount != 0 && s.Item.Id == itemId);
         }
+
+        /// <summary>
+        /// Gets a number of items of a certain type owned. (0 if not found)
+        /// </summary>
+        public static int GetItemCount(this RpgAccount accout, uint itemId)
+        {
+            return (int) accout.InventorySlots.Where(s => s.Item.Id == itemId).Sum(s => s.Amount);
+        }
     }
 }
