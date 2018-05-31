@@ -6,6 +6,9 @@
 # VSCode
 .vscode/
 
+# .NET Core runtime
+jsonStorage/
+
 # User-specific files
 *.suo
 *.user
