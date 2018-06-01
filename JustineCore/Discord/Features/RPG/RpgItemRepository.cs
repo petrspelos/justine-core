@@ -4,12 +4,12 @@ using System.Linq;
 
 namespace JustineCore.Discord.Features.RPG
 {
-    public class RpgItemRepository
+    public class RpgRepository
     {
         private const string DataStorageKey = "RpgItemRepository";
         private readonly List<RpgItem> _items;
 
-        public RpgItemRepository(IDataStorage dataStorage)
+        public RpgRepository(IDataStorage dataStorage)
         {
             try
             {

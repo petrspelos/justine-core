@@ -63,6 +63,11 @@ namespace JustineCore.Discord.Providers.UserData
             return _globalUserDatas.FirstOrDefault(d => d.DiscordId == userId);
         }
 
+        public IEnumerable<GlobalUserData> SearchByPredicate(Func<GlobalUserData, bool> predicate)
+        {
+            return _globalUserDatas.Where(predicate);
+        }
+
         public void SaveGlobalUserData(GlobalUserData data)
         {
             var key = string.Format(GlobalDataKeyFormat, data.DiscordId);

@@ -9,6 +9,9 @@
 # .NET Core runtime
 jsonStorage/
 
+# build-script
+baunka-deploy.bat
+
 # User-specific files
 *.suo
 *.user

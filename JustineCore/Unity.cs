@@ -28,7 +28,7 @@ namespace JustineCore
             _container.RegisterType<ILocalization, JsonLocalization>(new ContainerControlledLifetimeManager());
             _container.RegisterType<IDataStorage, JsonLocalStorage>(new ContainerControlledLifetimeManager());
             _container.RegisterType<AppConfig>(new ContainerControlledLifetimeManager());
-            _container.RegisterType<RpgItemRepository>(new ContainerControlledLifetimeManager());
+            _container.RegisterType<RpgRepository>(new ContainerControlledLifetimeManager());
         }
 
         public static T Resolve<T>()

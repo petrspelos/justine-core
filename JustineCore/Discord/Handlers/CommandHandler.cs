@@ -35,7 +35,7 @@ namespace JustineCore.Discord.Handlers
                 .AddSingleton(Unity.Resolve<IDataStorage>())
                 .AddSingleton(Unity.Resolve<GlobalUserDataProvider>())
                 .AddSingleton(Unity.Resolve<AppConfig>())
-                .AddSingleton(Unity.Resolve<RpgItemRepository>())
+                .AddSingleton(Unity.Resolve<RpgRepository>())
                 .BuildServiceProvider();
 
             await _commandService.AddModulesAsync(Assembly.GetEntryAssembly());

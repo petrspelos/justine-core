@@ -15,6 +15,22 @@ namespace JustineCore
                 .Replace("<proper-date>", $"{DateTime.Now.Day.Ordinalize()} of {DateTime.Now:MMMM}, {DateTime.Now:yyyy}");
         }
 
+        //y = log(x) * mult
+        public static int GetLogValNoNegative(int value, int mult = 10)
+        {
+            return (int)(Math.Log(value + 1) * (double)mult);
+        }
+
+        public static int GetGeneralCurveLevel(int cost)
+        {
+            return (int)Math.Sqrt(((double)cost / 15.0));
+        }
+
+        public static int GetGeneralCurveCost(int lvl)
+        {
+            return (int)(Math.Pow(lvl, 2.0) * 15.0);
+        }
+
         public static void ExecuteAt(Action action, int hours, int minutes)
         {
             JobManager.AddJob(action, s => s.ToRunOnceAt(hours, minutes));

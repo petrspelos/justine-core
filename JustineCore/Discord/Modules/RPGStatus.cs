@@ -13,9 +13,9 @@ namespace JustineCore.Discord.Modules
     public class RpgStatus : ModuleBase<SocketCommandContext>
     {
         private readonly GlobalUserDataProvider _userProvider;
-        private readonly RpgItemRepository _rpgItemRepository;
+        private readonly RpgRepository _rpgItemRepository;
 
-        public RpgStatus(GlobalUserDataProvider userProvider, RpgItemRepository rpgItemRepository)
+        public RpgStatus(GlobalUserDataProvider userProvider, RpgRepository rpgItemRepository)
         {
             _userProvider = userProvider;
             _rpgItemRepository = rpgItemRepository;
@@ -27,7 +27,24 @@ namespace JustineCore.Discord.Modules
         {
             var globalUser = _userProvider.GetGlobalUserData(Context.User.Id);
 
-            await ReplyAsync($"{Context.User.Mention}\n```\nStrength: {globalUser.RpgAccount.Strength}\nSpeed: {globalUser.RpgAccount.Speed}\nLuck: {globalUser.RpgAccount.Luck}\n```");
+            var goldId = _rpgItemRepository.GetItemByName("gold").Id;
+            var gold = globalUser.RpgAccount.GetItemCount(goldId);
+
+            await ReplyAsync($@"{Context.User.Mention}
+```
+Gold: {gold}
+
+[N/A] Health: ..... {globalUser.RpgAccount.Health} / {globalUser.RpgAccount.MaxHealth}
+[STR] Strength: ... {globalUser.RpgAccount.Strength} | {Utility.GetGeneralCurveCost((int)(globalUser.RpgAccount.Strength + 1))} gold to upgrade.
+[SPD] Speed: ...... {globalUser.RpgAccount.Speed} | {Utility.GetGeneralCurveCost((int)(globalUser.RpgAccount.Speed + 1))} gold to upgrade.
+[INT] Intelligence: {globalUser.RpgAccount.Intelligence} | {Utility.GetGeneralCurveCost((int)(globalUser.RpgAccount.Intelligence + 1))} gold to upgrade.
+[END] Endurance: .. {globalUser.RpgAccount.Endurance} | {Utility.GetGeneralCurveCost((int)(globalUser.RpgAccount.Endurance + 1))} gold to upgrade.
+[LCK] Luck: ....... {globalUser.RpgAccount.Luck} | {Utility.GetGeneralCurveCost((int)(globalUser.RpgAccount.Luck + 1))} gold to upgrade.
+```
+
+`[Mention/Prefix] upgrade STR` to upgrade strength. (where STR is the stat's shortcut)
+
+`[Mention/Prefix] heal` to get 50 HP for 50 gold.");
         }
 
         [Command("gold")]
@@ -96,6 +113,7 @@ namespace JustineCore.Discord.Modules
 
         [Command("gold dig")]
         [RequireDataCollectionConsent]
+        [RequireRpgAlive]
         public async Task SearchForGold()
         {
             var user = _userProvider.GetGlobalUserData(Context.User.Id);
@@ -140,6 +158,21 @@ namespace JustineCore.Discord.Modules
             var r = new Random();
             var foundGold = (uint)r.Next(0, 20 + r.Next(0, (int)(5 * user.RpgAccount.Luck)));
 
+            // Dig up a guy chance
+            var deadPlayers = _userProvider.SearchByPredicate(u => u.RpgAccount.Health <= 0);
+            if(deadPlayers.Count() > 0 &&
+                r.Next(0, 101) > 10)
+            {
+                var luckyGuy = Utility.GetRandomElement(deadPlayers.ToList());
+                var luckyUser = Context.Guild.GetUser(luckyGuy.DiscordId);
+                var luckyMention = (luckyUser == null) ? "someone from a different server" : luckyUser.Mention;
+
+                await ReplyAsync($":coffin: Oh damn! {Context.User.Mention} you dug up {luckyMention}.\n\nThanks to you, they get +1 health, which makes them alive again. :thumbsup:");
+
+                luckyGuy.RpgAccount.Health = 1;
+                _userProvider.SaveGlobalUserData(luckyGuy);
+            }
+
             Logger.Log($"[Gold Digging] {Context.User.Username} - dug up {foundGold} gold.", ConsoleColor.Cyan);
 
             var goldId = _rpgItemRepository.GetItemByName("gold").Id;
@@ -151,6 +184,219 @@ namespace JustineCore.Discord.Modules
             if (foundGold <= 5) reportMsg += "<a:YouTried:438951533971898369>";
 
             await ReplyAsync(reportMsg);
+        }
+
+        // =============================
+        // Upgrades
+        // =============================
+        [Command("upgrade")]
+        [RequireDataCollectionConsent]
+        [RequireRpgAlive]
+        public async Task UpgradeStat(string stat)
+        {
+            stat = stat.ToLower();
+            if(!Constants.ValidUpgradeLabels.Contains(stat))
+            {
+                await ReplyAsync($"Sorry, '{stat}' does not appear to be a valid upgrade label.\n\nTry `[Mention/Prefix] stats` to see the list.");
+                return;
+            }
+
+            var user = _userProvider.GetGlobalUserData(Context.User.Id);
+
+            var result = StatUpgrade.StatUpgradeResult.NotEnoughGold;
+            if(stat == "str")
+            {
+                result = user.RpgAccount.UpgradeStrength();
+            }
+            else if(stat == "hp")
+            {
+                result = user.RpgAccount.UpgradeHealth();
+            }
+            else if(stat == "spd")
+            {
+                result = user.RpgAccount.UpgradeSpeed();
+            }
+            else if(stat == "lck")
+            {
+                result = user.RpgAccount.UpgradeLuck();
+            }
+            else if(stat == "int")
+            {
+                result = user.RpgAccount.UpgradeIntelligence();
+            }
+            else// if(stat == "end")
+            {
+                result = user.RpgAccount.UpgradeEndurance();
+            }
+
+            if(result == StatUpgrade.StatUpgradeResult.NotEnoughGold)
+            {
+                await ReplyAsync($"You don't have enough gold to upgrade that stat.\n\nSee `[Mention/Prefix] stats` for more details.");
+                return;
+            }
+            else
+            {
+                _userProvider.SaveGlobalUserData(user);
+                await ReplyAsync($"{Context.User.Mention}, :white_check_mark: Success!");
+            }
+        }
+
+        [Command("heal")]
+        [RequireDataCollectionConsent]
+        [RequireRpgAlive]
+        public async Task Heal()
+        {
+            var user = _userProvider.GetGlobalUserData(Context.User.Id);
+
+            var result = user.RpgAccount.HealFor50();
+            
+            if(result == StatUpgrade.StatUpgradeResult.NotEnoughGold)
+            {
+                await ReplyAsync($"You don't have enough gold to heal.\n\nYou need 50 gold. _(Healing will add 50 HP)_");
+                return;
+            }
+            else
+            {
+                _userProvider.SaveGlobalUserData(user);
+                await ReplyAsync($"{Context.User.Mention}, :white_check_mark: Success, you were healed for 50 HP! (This does not overflow your max health)");
+            }
+        }
+
+        [Command("resurrect")]
+        [RequireDataCollectionConsent]
+        [RequireRpgAlive]
+        public async Task Resurrect(IGuildUser target)
+        {
+            if(!_userProvider.GlobalDataExists(target.Id))
+            {
+                await ReplyAsync($"Unfortunately, {target.Username} does not play this game. =/");
+                return;
+            }
+
+            var user = _userProvider.GetGlobalUserData(Context.User.Id);
+            var targetUser = _userProvider.GetGlobalUserData(target.Id);
+
+            if(targetUser.RpgAccount.Health < 0)
+            {
+                await ReplyAsync($"That's very sweet of you, but {target.Username} is still alive... You cannot resurrect living people.");
+                return;
+            }
+
+            var goldId = _rpgItemRepository.GetItemByName("gold").Id;
+            var gold = user.RpgAccount.GetItemCount(goldId);
+
+            if(gold < 50)
+            {
+                await ReplyAsync($"You don't have enough gold to resurrect.\n\nYou need 50 gold.");
+                return;
+            }
+            else
+            {
+                user.RpgAccount.RemoveItemCount(goldId, 50);
+                targetUser.RpgAccount.Health = 1;
+                _userProvider.SaveGlobalUserData(user);
+                _userProvider.SaveGlobalUserData(targetUser);
+                await ReplyAsync($"{Context.User.Mention}, :white_check_mark: you managed to resurrect {target.Mention} for 50 gold.");
+            }
+        }
+
+        // =============================
+        // Short Missions
+        // =============================
+        [Command("mission short")]
+        [RequireDataCollectionConsent]
+        [RequireRpgAlive]
+        public async Task ShortMission()
+        {
+            var user = _userProvider.GetGlobalUserData(Context.User.Id);
+
+            if (user.RpgAccount.OnAdventure) return;
+
+            user.RpgAccount.OnAdventure = true;
+
+            var failChance = 15; // base failChance;
+            
+            if(user.RpgAccount.Health < 15)
+            {
+                failChance += 20;
+            }
+            else if(user.RpgAccount.Health < 40)
+            {
+                failChance += 5;
+            }
+
+            failChance -= Utility.Random.Next(0, (int)user.RpgAccount.Luck);
+
+            var failRoll = Utility.Random.Next(1, 101);
+            bool success = failRoll > failChance;
+
+            var maxReward = 20;
+
+            var luckRewardMod = Utility.Random.Next(0, (int)user.RpgAccount.Luck);
+            var intelligenceRewardMod = Utility.Random.Next(0, Utility.GetLogValNoNegative((int)user.RpgAccount.Intelligence));
+
+            
+            maxReward += luckRewardMod;
+            maxReward += intelligenceRewardMod;
+
+            var reward = Utility.Random.Next(10, maxReward);
+
+            var damageTaken = Utility.Random.Next(5, 20);
+            var damageBase = damageTaken;
+
+            if(!success) damageTaken = damageTaken * 2;
+
+            var enduranceAbsorbtionPotential = Utility.GetLogValNoNegative((int)user.RpgAccount.Endurance);
+            var enduranceAbsorbtion = Utility.Random.Next(0, enduranceAbsorbtionPotential);
+            damageTaken = Math.Clamp(damageTaken - enduranceAbsorbtion, 1, int.MaxValue);
+            
+            Console.WriteLine($@"{Context.User.Username} rolled the following:
+-- FAIL CHANCE --
+Chance: {failChance}
+Roll: {failRoll}
+Failed: {(success ? "False" : "True")}
+
+-- REWARD --
+Luck: {luckRewardMod}
+Intelligence: {intelligenceRewardMod}
+-- REWARD TOTAL: {reward} --
+
+-- DAMAGE --
+Damage base: {damageBase}
+Endurance absorbtion potential: {enduranceAbsorbtionPotential}
+Endurance absorbtion: {enduranceAbsorbtion}
+-- DAMAGE TOTAL: {damageTaken} --
+");
+
+            await ReplyAsync($"{Context.User.Mention}, I'll notify you when you're back from the adventure... (in about 5 minutes)");
+            
+            Utility.ExecuteAfter(async () => {
+                user.RpgAccount.Health = Math.Clamp(user.RpgAccount.Health - damageTaken, 0, user.RpgAccount.MaxHealth);
+                if(!success)
+                {
+                    await ReplyAsync($@"{Context.User.Mention},
+
+:x: **Your mission failed.**
+
+{Utility.GetRandomElement(Constants.MissionFailCauses.ToList())}
+
+:heart: -{damageTaken}");
+                }
+                else
+                {
+                    user.RpgAccount.AddItemById(1, (uint)reward);
+                    await ReplyAsync($@"{Context.User.Mention},
+
+:white_check_mark: **Your mission was a success!**
+
+{Utility.GetRandomElement(Constants.MissionSuccessCauses.ToList())}
+
+:heart: -{damageTaken}
+:moneybag: {reward}");
+                }
+                user.RpgAccount.OnAdventure = false;
+                _userProvider.SaveGlobalUserData(user);
+            }, 60 * 5);
         }
     }
 }

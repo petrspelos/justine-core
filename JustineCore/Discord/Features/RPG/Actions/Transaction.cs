@@ -42,5 +42,23 @@ namespace JustineCore.Discord.Features.RPG.Actions
 
             targetSlot.Amount += amount;
         }
+
+        public static void RemoveItemCount(this RpgAccount account, uint itemId, uint amount)
+        {
+            var targetSlot = account.InventorySlots.FirstOrDefault(s => s.Item.Id == itemId);
+            if (targetSlot is null)
+            {
+                return;
+            }
+
+            if(targetSlot.Amount <= amount)
+            {
+                account.InventorySlots.Remove(targetSlot);
+            }
+            else
+            {
+                targetSlot.Amount -= amount;
+            }
+        }
     }
 }
