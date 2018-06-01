@@ -22,6 +22,12 @@ namespace JustineCore.Discord.Modules
             _appConfig = appConfig;
         }
 
+        [Command("help")]
+        public async Task Help()
+        {
+            await ReplyAsync($"**Here's the commands documentation:\n**https://petrspelos.github.io/justine-core/Website/");
+        }
+
         [Command("I accept the rules")]
         [Alias("I accept the rules.")]
         public async Task TutorialRulesAccept()
