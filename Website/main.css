@@ -1,0 +1,88 @@
+body {
+    padding: 0;
+    margin: 0;
+    font-family: 'Bree Serif', serif;
+    background-image: url('https://i.imgur.com/kiAS8Tp.png');
+  }
+
+  .wrapper {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .wrapper-short {
+    margin: 0;
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+  }
+
+  .tile {
+    width: 250px;
+    margin: 5px;
+    overflow: hidden;
+    float: left;
+    height: 240px;
+    background-color: rgb(56, 56, 56);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    box-shadow:  0px 0px 1px 0px black;
+  }
+
+  .content {
+      width: 80%;
+      height: auto;
+      margin: 20px auto;
+      color: #fff;
+      overflow: hidden;
+      background-color: rgb(56, 56, 56);
+      box-shadow:  0px 0px 1px 0px black;
+  }
+
+  .icon {
+    width: 100px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 15px;
+  }
+
+  .title {
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+
+  .text {
+      padding: 20px;
+      font-family: 'Roboto', sans-serif;
+      color: rgb(179, 179, 179);
+  }
+
+  pre {
+      background-color: rgb(49, 49, 49);
+      padding: 20px;
+      font-size: 20px;
+      color: #fff;
+  }
+
+  .text h1 {
+      margin: 30px 0px;
+      color: rgb(196, 196, 196);
+  }
+
+  .text p {
+    padding: 10px;
+  }
