@@ -9,12 +9,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentScheduler;
 using static JustineCore.Utility;
+using System;
+using JustineCore.Discord.Features.RPG.GoldDigging;
 
 namespace JustineCore.Discord
 {
     public class Connection
     {
-        private DiscordSocketClient _client;
+        internal DiscordSocketClient client;
         private CommandHandler _commandHandler;
         private readonly AppConfig _appConfig;
 
@@ -25,8 +27,8 @@ namespace JustineCore.Discord
 
         internal async Task NotifyOwner(string message)
         {
-            if(_client.ConnectionState != ConnectionState.Connected) return;
-            var owner = _client.GetUser(182941761801420802);
+            if(client.ConnectionState != ConnectionState.Connected) return;
+            var owner = client.GetUser(182941761801420802);
             var dm = await owner.GetOrCreateDMChannelAsync();
             await dm.SendMessageAsync(message);
         }
@@ -40,15 +42,16 @@ namespace JustineCore.Discord
                 LogLevel = LogSeverity.Verbose
             };
 
-            _client = new DiscordSocketClient(socketConfig);
-            _client.Log += Logger.Log;
+            client = new DiscordSocketClient(socketConfig);
+            client.Log += Logger.Log;
+            client.Ready += OnReady;
 
             _commandHandler = new CommandHandler();
-            await _commandHandler.InitializeAsync(_client);
+            await _commandHandler.InitializeAsync(client);
 
             try
             {
-                await _client.LoginAsync(TokenType.Bot, _appConfig.DiscordBotConfig.Token);
+                await client.LoginAsync(TokenType.Bot, _appConfig.DiscordBotConfig.Token);
             }
             catch (HttpException e)
             {
@@ -58,7 +61,7 @@ namespace JustineCore.Discord
                 }
             }
 
-            await _client.StartAsync();
+            await client.StartAsync();
 
             RegisterScheduledMessages();
 
@@ -66,6 +69,14 @@ namespace JustineCore.Discord
             {
                 cancellationToken.ThrowIfCancellationRequested();
             }
+        }
+
+        private Task OnReady()
+        {
+            var djp = Unity.Resolve<DiggingJobProvider>();
+            djp.RegisterAllJobs();
+
+            return Task.CompletedTask;
         }
 
         private void ValidateToken()
@@ -86,7 +97,7 @@ namespace JustineCore.Discord
         {
             foreach (var p in sm.Payloads)
             {
-                p.Send(_client);
+                p.Send(client);
             }
         }
 

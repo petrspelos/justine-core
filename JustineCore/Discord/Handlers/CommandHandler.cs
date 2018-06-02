@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using JustineCore.Configuration;
 using JustineCore.Discord.Features.RPG;
+using JustineCore.Discord.Features.RPG.GoldDigging;
 
 namespace JustineCore.Discord.Handlers
 {
@@ -36,6 +37,7 @@ namespace JustineCore.Discord.Handlers
                 .AddSingleton(Unity.Resolve<GlobalUserDataProvider>())
                 .AddSingleton(Unity.Resolve<AppConfig>())
                 .AddSingleton(Unity.Resolve<RpgRepository>())
+                .AddSingleton(Unity.Resolve<DiggingJobProvider>())
                 .BuildServiceProvider();
 
             await _commandService.AddModulesAsync(Assembly.GetEntryAssembly());
@@ -52,6 +54,9 @@ namespace JustineCore.Discord.Handlers
             var context = new SocketCommandContext(_client, msg);
             if (context.User.IsBot) return;
             
+            // ONLY WHEN DEBUG
+            //if(context.Guild.Id != 338393057437286411) return;
+
             var argPos = 0;
             if (msg.HasMentionPrefix(_client.CurrentUser, ref argPos))
             {

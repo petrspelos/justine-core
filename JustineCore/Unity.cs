@@ -29,6 +29,7 @@ namespace JustineCore
             _container.RegisterType<IDataStorage, JsonLocalStorage>(new ContainerControlledLifetimeManager());
             _container.RegisterType<AppConfig>(new ContainerControlledLifetimeManager());
             _container.RegisterType<RpgRepository>(new ContainerControlledLifetimeManager());
+            _container.RegisterType<Discord.Connection>(new ContainerControlledLifetimeManager());
         }
 
         public static T Resolve<T>()

@@ -4,6 +4,14 @@ namespace JustineCore.Discord.Features.RPG.Actions
 {
     public static class InventoryUtils
     {
+        private static uint goldId;
+
+        static InventoryUtils()
+        {
+            var repo = Unity.Resolve<RpgRepository>();
+            goldId = repo.GetItemByName("gold").Id;
+        }
+
         /// <summary>
         /// Determines if the account has an item with a particular ID.
         /// </summary>
@@ -21,6 +29,16 @@ namespace JustineCore.Discord.Features.RPG.Actions
         public static int GetItemCount(this RpgAccount accout, uint itemId)
         {
             return (int) accout.InventorySlots.Where(s => s.Item.Id == itemId).Sum(s => s.Amount);
+        }
+
+        public static int GetGoldAmount(this RpgAccount account)
+        {
+            return account.GetItemCount(goldId);
+        }
+
+        public static void AddGold(this RpgAccount account, uint amount)
+        {
+            account.AddItemById(goldId, amount);
         }
     }
 }

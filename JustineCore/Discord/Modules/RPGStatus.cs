@@ -2,6 +2,7 @@
 using Discord.Commands;
 using JustineCore.Discord.Features.RPG;
 using JustineCore.Discord.Features.RPG.Actions;
+using JustineCore.Discord.Features.RPG.GoldDigging;
 using JustineCore.Discord.Preconditions;
 using JustineCore.Discord.Providers.UserData;
 using JustineCore.Entities;
@@ -15,11 +16,13 @@ namespace JustineCore.Discord.Modules
     {
         private readonly GlobalUserDataProvider _userProvider;
         private readonly RpgRepository _rpgItemRepository;
+        private readonly DiggingJobProvider _djp;
 
-        public RpgStatus(GlobalUserDataProvider userProvider, RpgRepository rpgItemRepository)
+        public RpgStatus(GlobalUserDataProvider userProvider, RpgRepository rpgItemRepository, DiggingJobProvider digJobProv)
         {
             _userProvider = userProvider;
             _rpgItemRepository = rpgItemRepository;
+            _djp = digJobProv;
         }
 
         [Command("stats")]
@@ -142,85 +145,89 @@ Gold: {gold}
 
             await ReplyAsync("Success");
         }
+
+        [Command("debug")]
+        [RequireDataCollectionConsent]
+        [RequireOwner]
+        public async Task Debug(int minutes)
+        {
+            var user = _userProvider.GetGlobalUserData(Context.User.Id);
+
+            
+
+            await ReplyAsync("Success!");
+        }
         
         // =============================
         // Single player digging
         // =============================
 
+        [Command("gold dig cancel")]
+        [RequireDataCollectionConsent]
+        [RequireRpgAlive]
+        public async Task CancelGoldDigging()
+        {
+            var user = _userProvider.GetGlobalUserData(Context.User.Id);
+            if (_djp.IsDigging(Context.User.Id) || !user.RpgAccount.OnAdventure)
+            {
+                await ReplyAsync($"{Context.User.Mention}, you are not currently digging.");
+                return;
+            }
+
+            _djp.RemoveByUserId(Context.User.Id);
+
+            await ReplyAsync($"{Context.User.Mention}, you cancelled your digging and will not get any reward.");
+        }
+
         [Command("gold dig")]
         [RequireDataCollectionConsent]
         [RequireRpgAlive]
-        public async Task SearchForGold()
+        public async Task SearchForGold(int hours = 1)
         {
             var user = _userProvider.GetGlobalUserData(Context.User.Id);
-
             if (user.RpgAccount.OnAdventure) return;
+            if(hours < 1)
+            {
+                await ReplyAsync("The minimal time to dig is 1 hour.");
+                return;
+            }
+            else if(hours > 8)
+            {
+                await ReplyAsync("You cannot dig for more than 8 hours at a time.");
+                return;
+            }
 
             user.RpgAccount.OnAdventure = true;
 
-            const int defaultLength = 30 * 60;
-
-            var diggingLength = Math.Clamp(defaultLength - user.RpgAccount.Speed * 2, 0, defaultLength);
+            _djp.AddJob(new DiggingJob
+            {
+                UserId = Context.User.Id,
+                DiggingLengthInHours = hours,
+                GuildId = Context.Guild.Id,
+                TextChannelId = Context.Channel.Id,
+                StartDateTime = DateTime.Now
+            });
 
             var diggingPhrases = new []
             {
-                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _on this cool mountain path._ :mountain_snow: They'll be back in {diggingLength / 60} minutes.",
-                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _in the depths of a dark city._ :night_with_stars: They'll be back in {diggingLength / 60} minutes.",
-                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _in Sweden._ :flag_se: They'll be back in {diggingLength / 60} minutes.",
-                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _on the moon._ :waning_gibbous_moon: They'll be back in {diggingLength / 60} minutes.",
-                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _in the local fountain._ :fountain: They'll be back in {diggingLength / 60} minutes.",
-                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _in a video game._ :space_invader: They'll be back in {diggingLength / 60} minutes.",
-                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _in a chair factory._ :factory: They'll be back in {diggingLength / 60} minutes.",
-                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _in..._ <a:ExcuseMeWtf:448550985447637002> :wedding: They'll be back in {diggingLength / 60} minutes.",
-                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _on a roller coaster (good luck)._ :roller_coaster: They'll be back in {diggingLength / 60} minutes.",
-                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _on the beach._ :beach_umbrella: They'll be back in {diggingLength / 60} minutes.",
-                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _in the wilderness._ :tent: They'll be back in {diggingLength / 60} minutes.",
-                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _in the bathtub._ :bathtub: They'll be back in {diggingLength / 60} minutes.",
-                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _on the Internet._ :computer: They'll be back in {diggingLength / 60} minutes."
+                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _on this cool mountain path._ :mountain_snow: They'll be back in {hours} hour(s).",
+                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _in the depths of a dark city._ :night_with_stars: They'll be back in {hours} hour(s).",
+                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _in Sweden._ :flag_se: They'll be back in {hours} hour(s).",
+                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _on the moon._ :waning_gibbous_moon: They'll be back in {hours} hour(s).",
+                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _in the local fountain._ :fountain: They'll be back in {hours} hour(s).",
+                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _in a video game._ :space_invader: They'll be back in {hours} hour(s).",
+                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _in a chair factory._ :factory: They'll be back in {hours} hour(s).",
+                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _in..._ <a:ExcuseMeWtf:448550985447637002> :wedding: They'll be back in {hours} hour(s).",
+                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _on a roller coaster (good luck)._ :roller_coaster: They'll be back in {hours} hour(s).",
+                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _on the beach._ :beach_umbrella: They'll be back in {hours} hour(s).",
+                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _in the wilderness._ :tent: They'll be back in {hours} hour(s).",
+                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _in the bathtub._ :bathtub: They'll be back in {hours} hour(s).",
+                $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _on the Internet._ :computer: They'll be back in {hours} hour(s)."
             };
 
             await ReplyAsync(Utility.GetRandomElement(diggingPhrases.ToList()));
 
-            Logger.Log($"[Gold Digging] {Context.User.Username} - for {diggingLength} seconds", ConsoleColor.Cyan);
-
-            Utility.ExecuteAfter(FinishGoldSearch, (int)diggingLength);
-        }
-
-        private async void FinishGoldSearch()
-        {
-            if(!_userProvider.GlobalDataExists(Context.User.Id)) return;
-
-            var user = _userProvider.GetGlobalUserData(Context.User.Id);
-            user.RpgAccount.OnAdventure = false;
-
-            var foundGold = (uint)Utility.Random.Next(0, 20 + Utility.Random.Next(0, (int)(5 * user.RpgAccount.Luck)));
-
-            // Dig up a guy chance
-            var deadPlayers = _userProvider.SearchByPredicate(u => u.RpgAccount.Health <= 0);
-            if(deadPlayers.Count() > 0 &&
-                Utility.Random.Next(0, 101) > 10)
-            {
-                var luckyGuy = Utility.GetRandomElement(deadPlayers.ToList());
-                var luckyUser = Context.Guild.GetUser(luckyGuy.DiscordId);
-                var luckyMention = (luckyUser == null) ? "someone from a different server" : luckyUser.Mention;
-
-                await ReplyAsync($":coffin: Oh damn! {Context.User.Mention} you dug up {luckyMention}.\n\nThanks to you, they get +1 health, which makes them alive again. :thumbsup:");
-
-                luckyGuy.RpgAccount.Health = 1;
-                _userProvider.SaveGlobalUserData(luckyGuy);
-            }
-
-            Logger.Log($"[Gold Digging] {Context.User.Username} - dug up {foundGold} gold.", ConsoleColor.Cyan);
-
-            var goldId = _rpgItemRepository.GetItemByName("gold").Id;
-            user.RpgAccount.AddItemById(goldId, foundGold);
-            _userProvider.SaveGlobalUserData(user);
-            
-            var reportMsg = $":mega: {Context.User.Mention} found **{foundGold} gold**!";
-
-            if (foundGold <= 5) reportMsg += "<a:YouTried:438951533971898369>";
-
-            await ReplyAsync(reportMsg);
+            Logger.Log($"[Gold Digging] {Context.User.Username} - for {hours} hours", ConsoleColor.Cyan);
         }
 
         // =============================
@@ -376,7 +383,7 @@ Gold: {gold}
             maxReward += luckRewardMod;
             maxReward += intelligenceRewardMod;
 
-            var reward = Utility.Random.Next(10, maxReward);
+            var reward = (uint)Utility.Random.Next(10, maxReward);
 
             var damageTaken = Utility.Random.Next(5, 20);
             var damageBase = damageTaken;
@@ -412,9 +419,13 @@ You embark on an epic 5 minutes long mission.
 Your task is {Utility.GetRandomElement(Constants.MissionPitches.ToList())}");
             
             Utility.ExecuteAfter(async () => {
+                
                 if(!_userProvider.GlobalDataExists(Context.User.Id)) return;
+                
+                var rpgUser = user.RpgAccount;
 
-                user.RpgAccount.Health = Math.Clamp(user.RpgAccount.Health - damageTaken, 0, user.RpgAccount.MaxHealth);
+                rpgUser.GiveDamage(damageTaken);
+
                 if(!success)
                 {
                     await ReplyAsync($@"{Context.User.Mention},
@@ -427,17 +438,21 @@ Your task is {Utility.GetRandomElement(Constants.MissionPitches.ToList())}");
                 }
                 else
                 {
-                    user.RpgAccount.AddItemById(1, (uint)reward);
+                    rpgUser.AddGold(reward);
+
                     await ReplyAsync($@"{Context.User.Mention},
 
 :white_check_mark: **Your mission was a success!**
 
 {Utility.GetRandomElement(Constants.MissionSuccessCauses.ToList())}
 
-:heart: -{damageTaken}
-:moneybag: {reward}");
+:heart: -{damageTaken} | :moneybag: {reward}
+
+You now have **{rpgUser.Health} HP** and **{rpgUser.GetGoldAmount()} gold**.");
                 }
-                user.RpgAccount.OnAdventure = false;
+
+                rpgUser.OnAdventure = false;
+
                 _userProvider.SaveGlobalUserData(user);
             }, 60 * 5);
         }

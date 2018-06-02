@@ -2,6 +2,8 @@ namespace JustineCore
 {
     public static class Constants
     {
+        public const int DiggingGoldPerHour = 10;
+
         public static readonly string[] ValidUpgradeLabels = new[] {"str", "spd", "lck", "int", "end"}; // hp temorarily removed
 
         public static readonly string[] MissionPitches = new[] 
