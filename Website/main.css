@@ -38,7 +38,27 @@ body {
     color: #fff;
     box-shadow:  0px 0px 1px 0px black;
   }
+  
+  .tag {
+    background-color: #c40909;
+    padding: 5px;
+    border-radius: 10%;
+    color: white;
+    box-shadow: 0px 0px 10px 2px #ed8484;
+    font-size: 15px;
+    vertical-align: middle;
+  }
+  
+  h1 .tag {
+    margin-left: 15px;
+  }
 
+  .tile-tag {
+    position: relative;
+    top: -13px;
+    left: -40px;
+  }
+  
   .content {
       width: 80%;
       height: auto;

@@ -4,6 +4,7 @@ using JustineCore.Discord.Features.RPG;
 using JustineCore.Discord.Features.RPG.Actions;
 using JustineCore.Discord.Preconditions;
 using JustineCore.Discord.Providers.UserData;
+using JustineCore.Entities;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,11 +28,50 @@ namespace JustineCore.Discord.Modules
         {
             var globalUser = _userProvider.GetGlobalUserData(Context.User.Id);
 
+            await ReplyAsync($@"{Context.User.Mention}
+{GetRpgAccountStatsReport(globalUser)}
+
+`[Mention/Prefix] upgrade STR` to upgrade strength. (where STR is the stat's shortcut)
+
+`[Mention/Prefix] heal` to get 50 HP for 50 gold.");
+        }
+
+        [Command("stats")]
+        [RequireDataCollectionConsent]
+        public async Task ShowStats(IGuildUser target)
+        {
+            var nickOrUsername = target.Nickname??target.Username;
+
+            if(target.Id == Context.User.Id)
+            {
+                await ShowStats();
+                return;
+            }
+
+            if(target.IsBot)
+            {
+                await ReplyAsync("Bots don't have stats. Even if they had, they would beat you up.");
+                return;
+            }
+
+            if(!_userProvider.GlobalDataExists(target.Id))
+            {
+                await ReplyAsync($"{nickOrUsername} did not give data collection consent.");
+                return;
+            }
+
+            var globalUser = _userProvider.GetGlobalUserData(target.Id);
+
+            await ReplyAsync($@"Stats of {nickOrUsername}
+            {GetRpgAccountStatsReport(globalUser)}");
+        }
+
+        private string GetRpgAccountStatsReport(GlobalUserData globalUser)
+        {
             var goldId = _rpgItemRepository.GetItemByName("gold").Id;
             var gold = globalUser.RpgAccount.GetItemCount(goldId);
 
-            await ReplyAsync($@"{Context.User.Mention}
-```
+            return $@"```
 Gold: {gold}
 
 [N/A] Health: ..... {globalUser.RpgAccount.Health} / {globalUser.RpgAccount.MaxHealth}
@@ -40,11 +80,7 @@ Gold: {gold}
 [INT] Intelligence: {globalUser.RpgAccount.Intelligence} | {Utility.GetGeneralCurveCost((int)(globalUser.RpgAccount.Intelligence + 1))} gold to upgrade.
 [END] Endurance: .. {globalUser.RpgAccount.Endurance} | {Utility.GetGeneralCurveCost((int)(globalUser.RpgAccount.Endurance + 1))} gold to upgrade.
 [LCK] Luck: ....... {globalUser.RpgAccount.Luck} | {Utility.GetGeneralCurveCost((int)(globalUser.RpgAccount.Luck + 1))} gold to upgrade.
-```
-
-`[Mention/Prefix] upgrade STR` to upgrade strength. (where STR is the stat's shortcut)
-
-`[Mention/Prefix] heal` to get 50 HP for 50 gold.");
+```";
         }
 
         [Command("gold")]
@@ -152,16 +188,17 @@ Gold: {gold}
 
         private async void FinishGoldSearch()
         {
+            if(!_userProvider.GlobalDataExists(Context.User.Id)) return;
+
             var user = _userProvider.GetGlobalUserData(Context.User.Id);
             user.RpgAccount.OnAdventure = false;
 
-            var r = new Random();
-            var foundGold = (uint)r.Next(0, 20 + r.Next(0, (int)(5 * user.RpgAccount.Luck)));
+            var foundGold = (uint)Utility.Random.Next(0, 20 + Utility.Random.Next(0, (int)(5 * user.RpgAccount.Luck)));
 
             // Dig up a guy chance
             var deadPlayers = _userProvider.SearchByPredicate(u => u.RpgAccount.Health <= 0);
             if(deadPlayers.Count() > 0 &&
-                r.Next(0, 101) > 10)
+                Utility.Random.Next(0, 101) > 10)
             {
                 var luckyGuy = Utility.GetRandomElement(deadPlayers.ToList());
                 var luckyUser = Context.Guild.GetUser(luckyGuy.DiscordId);
@@ -371,6 +408,8 @@ Endurance absorbtion: {enduranceAbsorbtion}
             await ReplyAsync($"{Context.User.Mention}, I'll notify you when you're back from the adventure... (in about 5 minutes)");
             
             Utility.ExecuteAfter(async () => {
+                if(!_userProvider.GlobalDataExists(Context.User.Id)) return;
+
                 user.RpgAccount.Health = Math.Clamp(user.RpgAccount.Health - damageTaken, 0, user.RpgAccount.MaxHealth);
                 if(!success)
                 {
