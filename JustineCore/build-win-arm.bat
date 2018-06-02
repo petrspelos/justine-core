@@ -1,2 +1,2 @@
-dotnet publish -r win-arm
+dotnet publish -r win-arm -c Release
 pause

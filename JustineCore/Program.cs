@@ -14,6 +14,12 @@ namespace JustineCore
 
         private static async Task Main(string[] args)
         {
+#if DEBUG
+            Discord.Logger.Log("[APPLICATION TYPE] Debug Mode");
+#else
+            Discord.Logger.Log("[APPLICATION TYPE] Release Mode");
+#endif  
+
             JobManager.Initialize(new Registry());
 
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;

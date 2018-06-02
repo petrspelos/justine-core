@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JustineCore.Entities;
 using JustineCore.Storage;
+using JustineCore.Discord.Features.RPG.Actions;
 
 namespace JustineCore.Discord.Providers.UserData
 {

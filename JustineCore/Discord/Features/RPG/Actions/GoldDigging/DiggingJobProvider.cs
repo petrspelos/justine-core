@@ -44,12 +44,14 @@ namespace JustineCore.Discord.Features.RPG.GoldDigging
             return _activeJobs.Any(j => j.UserId == userId);
         }
 
-        public void AddJob(DiggingJob job)
+        public async void AddJob(DiggingJob job)
         {
             if(_activeJobs.Any(j => j.UserId == job.UserId)) return;
 
             _activeJobs.Add(job);
             SaveJobs();
+            
+            await RegisterJob(job);
         }
 
         public void RemoveByUserId(ulong userId)
@@ -70,27 +72,38 @@ namespace JustineCore.Discord.Features.RPG.GoldDigging
             for(int i = _activeJobs.Count - 1; i >= 0; i--)
             {
                 var job = _activeJobs[i];
-                if(!_gudp.GlobalDataExists(job.UserId)) continue;
-
-                var finishDateTime = job.StartDateTime.AddHours(job.DiggingLengthInHours);
-
-                if(finishDateTime < DateTime.Now)
-                {
-                    // Job is supposed to be finished...
-                    await FinishDigging(job);
-                }
-                else
-                {
-                    var user = _gudp.GetGlobalUserData(job.UserId);
-                    user.RpgAccount.OnAdventure = true;
-
-                    Utility.ExecuteAt(async () => {
-                        await FinishDigging(job);
-                    }, finishDateTime);
-
-                    Logger.Log($"[RegisterAllDiggingJobs] Scheduled a stored job.");
-                }
+                await RegisterJob(job);
             }
+        }
+
+        public async Task RegisterJob(DiggingJob job)
+        {
+            // Do not continue if consent was lost.
+            if(!_gudp.GlobalDataExists(job.UserId)) return;
+
+#if DEBUG
+            // In DEBUG, we need to wait for SECONDS instead of HOURS
+            // to be able to test the feature without actually waiting.
+            var finishDateTime = job.StartDateTime.AddSeconds(job.DiggingLengthInHours);
+            //var finishDateTime = job.StartDateTime.AddSeconds(20);
+#else
+            var finishDateTime = job.StartDateTime.AddHours(job.DiggingLengthInHours);
+#endif
+
+            // Finish if past due-date.
+            if(finishDateTime < DateTime.Now)
+            {
+                await FinishDigging(job);
+                return;
+            }
+
+            var user = _gudp.GetGlobalUserData(job.UserId);
+
+            Utility.ExecuteAt(async () => {
+                await FinishDigging(job);
+            }, finishDateTime);
+
+            Logger.Log($"[RegisterAllDiggingJobs] Scheduled a stored job.");
         }
 
         public async Task FinishDigging(DiggingJob job)
@@ -103,7 +116,6 @@ namespace JustineCore.Discord.Features.RPG.GoldDigging
             var user = _gudp.GetGlobalUserData(job.UserId);
 
             user.RpgAccount.AddGold(reward);
-            user.RpgAccount.OnAdventure = false;
 
             try
             {

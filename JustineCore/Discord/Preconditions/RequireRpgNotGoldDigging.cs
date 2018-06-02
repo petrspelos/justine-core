@@ -1,16 +1,19 @@
 using System;
 using System.Threading.Tasks;
 using Discord.Commands;
+using JustineCore.Discord.Features.RPG.GoldDigging;
 using JustineCore.Discord.Providers.UserData;
 using JustineCore.Language;
 
 namespace JustineCore.Discord.Preconditions
 {
-    public class RequireRpgAlive : PreconditionAttribute
+    public class RequireRpgNotGoldDigging : PreconditionAttribute
     {
         public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
         {
             var gudp = Unity.Resolve<GlobalUserDataProvider>();
+            var djp = Unity.Resolve<DiggingJobProvider>();
+
             var userId = context.User.Id;
 
             if (!gudp.GlobalDataExists(userId))
@@ -20,9 +23,9 @@ namespace JustineCore.Discord.Preconditions
 
             var user = gudp.GetGlobalUserData(userId);
 
-            if (user.RpgAccount.Health <= 0)
+            if (djp.IsDigging(userId))
             {
-                return Task.FromResult(PreconditionResult.FromError($"you have to be alive to do that.\n\n:coffin: Someone else can use `[Mention/Prefix] resurrect {context.User.Mention}` to resurrect you for 50 gold.\n\nBut your friends most likely buried already."));
+                return Task.FromResult(PreconditionResult.FromError($"you cannot perform this action while digging for gold.\n\nYou can, however, cancel your digging with `[Mention/Prefix] gold dig cancel`"));
             }
 
             return Task.FromResult(PreconditionResult.FromSuccess());

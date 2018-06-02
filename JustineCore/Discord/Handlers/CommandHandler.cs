@@ -53,15 +53,21 @@ namespace JustineCore.Discord.Handlers
 
             var context = new SocketCommandContext(_client, msg);
             if (context.User.IsBot) return;
-            
-            // ONLY WHEN DEBUG
-            //if(context.Guild.Id != 338393057437286411) return;
 
             var argPos = 0;
+#if DEBUG
+            // return if not DEBUG guild
+            if(context.Guild.Id != 338393057437286411) return;
+            if (msg.HasStringPrefix("> ", ref argPos))
+            {
+                await TryRunAsBotCommand(context, argPos);
+            }
+#else
             if (msg.HasMentionPrefix(_client.CurrentUser, ref argPos))
             {
                 await TryRunAsBotCommand(context, argPos);
             }
+#endif
         }
 
         private async Task TryRunAsBotCommand(SocketCommandContext context, int argPos)

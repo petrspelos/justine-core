@@ -88,6 +88,7 @@ Gold: {gold}
 
         [Command("gold")]
         [RequireDataCollectionConsent]
+        [RequireRpgAlive]
         public async Task CheckRpgGold()
         {
             var globalUser = _userProvider.GetGlobalUserData(Context.User.Id);
@@ -100,6 +101,7 @@ Gold: {gold}
 
         [Command("gold")]
         [RequireDataCollectionConsent]
+        [RequireRpgAlive]
         public async Task CheckRpgGold(IGuildUser target)
         {
             var nickOrUsername = target.Nickname??target.Username;
@@ -167,8 +169,7 @@ Gold: {gold}
         [RequireRpgAlive]
         public async Task CancelGoldDigging()
         {
-            var user = _userProvider.GetGlobalUserData(Context.User.Id);
-            if (_djp.IsDigging(Context.User.Id) || !user.RpgAccount.OnAdventure)
+            if (!_djp.IsDigging(Context.User.Id))
             {
                 await ReplyAsync($"{Context.User.Mention}, you are not currently digging.");
                 return;
@@ -196,8 +197,6 @@ Gold: {gold}
                 await ReplyAsync("You cannot dig for more than 8 hours at a time.");
                 return;
             }
-
-            user.RpgAccount.OnAdventure = true;
 
             _djp.AddJob(new DiggingJob
             {
@@ -236,6 +235,7 @@ Gold: {gold}
         [Command("upgrade")]
         [RequireDataCollectionConsent]
         [RequireRpgAlive]
+        [RequireRpgNotGoldDigging]
         public async Task UpgradeStat(string stat)
         {
             stat = stat.ToLower();
@@ -288,6 +288,7 @@ Gold: {gold}
         [Command("heal")]
         [RequireDataCollectionConsent]
         [RequireRpgAlive]
+        [RequireRpgNotGoldDigging]
         public async Task Heal()
         {
             var user = _userProvider.GetGlobalUserData(Context.User.Id);
@@ -309,6 +310,7 @@ Gold: {gold}
         [Command("resurrect")]
         [RequireDataCollectionConsent]
         [RequireRpgAlive]
+        [RequireRpgNotGoldDigging]
         public async Task Resurrect(IGuildUser target)
         {
             if(!_userProvider.GlobalDataExists(target.Id))
@@ -320,7 +322,7 @@ Gold: {gold}
             var user = _userProvider.GetGlobalUserData(Context.User.Id);
             var targetUser = _userProvider.GetGlobalUserData(target.Id);
 
-            if(targetUser.RpgAccount.Health < 0)
+            if(targetUser.RpgAccount.Health > 0)
             {
                 await ReplyAsync($"That's very sweet of you, but {target.Username} is still alive... You cannot resurrect living people.");
                 return;
@@ -350,6 +352,7 @@ Gold: {gold}
         [Command("mission short")]
         [RequireDataCollectionConsent]
         [RequireRpgAlive]
+        [RequireRpgNotGoldDigging]
         public async Task ShortMission()
         {
             var user = _userProvider.GetGlobalUserData(Context.User.Id);
