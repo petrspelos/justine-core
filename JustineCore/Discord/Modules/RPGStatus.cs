@@ -405,7 +405,11 @@ Endurance absorbtion: {enduranceAbsorbtion}
 -- DAMAGE TOTAL: {damageTaken} --
 ");
 
-            await ReplyAsync($"{Context.User.Mention}, I'll notify you when you're back from the adventure... (in about 5 minutes)");
+            await ReplyAsync($@"{Context.User.Mention},
+
+You embark on an epic 5 minutes long mission.
+
+Your task is {Utility.GetRandomElement(Constants.MissionPitches.ToList())}");
             
             Utility.ExecuteAfter(async () => {
                 if(!_userProvider.GlobalDataExists(Context.User.Id)) return;
@@ -415,9 +419,9 @@ Endurance absorbtion: {enduranceAbsorbtion}
                 {
                     await ReplyAsync($@"{Context.User.Mention},
 
-:x: **Your mission failed.**
+:x: **Your mission failed.** 
 
-{Utility.GetRandomElement(Constants.MissionFailCauses.ToList())}
+{Utility.GetRandomElement(Constants.MissionFailCauses.ToList())} :coffin:
 
 :heart: -{damageTaken}");
                 }

@@ -88,7 +88,7 @@ namespace JustineCore.Discord.Features.RPG.Actions
 
         public static StatUpgradeResult HealFor50(this RpgAccount account)
         {
-            var cost = Utility.GetGeneralCurveCost((int)(account.Endurance + 1));
+            var cost = 50;
             var gold = account.GetItemCount(1);
 
             if(50 > gold) return StatUpgradeResult.NotEnoughGold;
