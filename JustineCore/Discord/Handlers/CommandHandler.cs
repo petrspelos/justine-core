@@ -77,13 +77,18 @@ namespace JustineCore.Discord.Handlers
 
             Logger.Log($"[Command] {context.User.Username} is running '{cmdSearchResult.Commands.FirstOrDefault().Command.Name}' - Full message: '{context.Message.Content}'");
 
-            var result = await _commandService.ExecuteAsync(context, argPos, _services);
+            var commandTask = _commandService.ExecuteAsync(context, argPos, _services);
 
-            if (!result.IsSuccess && result.Error != CommandError.UnknownCommand)
+            #pragma warning disable CS4014
+            commandTask.ContinueWith(task => 
             {
-                var exceptionMessage = _lang.FromTemplate("EXCEPTION_RESPONSE_TEMPLATE(@REASON)", objects: result.ErrorReason);
-                await context.Channel.SendMessageAsync(exceptionMessage);
-            }
+                if (!task.Result.IsSuccess && task.Result.Error != CommandError.UnknownCommand)
+                {
+                    var exceptionMessage = _lang.FromTemplate("EXCEPTION_RESPONSE_TEMPLATE(@REASON)", objects: task.Result.ErrorReason);
+                    context.Channel.SendMessageAsync(exceptionMessage);
+                }
+            });
+            #pragma warning restore CS4014
         }
     }
 }

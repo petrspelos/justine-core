@@ -28,7 +28,14 @@ namespace JustineCore.Discord.Features.RPG.GoldDigging
 
         public static int GetReward(this DiggingJob job)
         {
-            return job.DiggingLengthInHours * Constants.DiggingGoldPerHour;
+            var reward = job.DiggingLengthInHours * Constants.DiggingGoldPerHour;
+
+            if(job.DiggingLengthInHours > 1)
+            {
+                reward += job.DiggingLengthInHours * Constants.StreakBonusPerHour;
+            }
+
+            return reward;
         }
     }
 }

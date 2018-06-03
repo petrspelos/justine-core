@@ -2,10 +2,11 @@ namespace JustineCore
 {
     public static class Constants
     {
+        public const string DefaultAvatarUrl = "https://i.imgur.com/vM8PWVB.png";
+        public const string DiscordBgHex = "#36393e";
         public const int DiggingGoldPerHour = 10;
-
+        public const int StreakBonusPerHour = 20;
         public static readonly string[] ValidUpgradeLabels = new[] {"str", "spd", "lck", "int", "end"}; // hp temorarily removed
-
         public static readonly string[] MissionPitches = new[] 
         {
             ":crystal_ball: Solving a very spooky mystery with the gang.",
@@ -22,7 +23,6 @@ namespace JustineCore
             "I don't really have a mission, but did you know that Diet Coke was only invented in 1982?",
             "going into the old forest of Grindel-roof to get the ancient sword Bligar-groof in order to visit the depths of Lili-Kii the Turr-Turr land and defeat the Qee'Karr the Tsuur chief. -- Good luck I guess. :dagger:"
         };
-
         public static readonly string[] MissionFailCauses = new[]
         {
             "You had this amazing idea for a joke, but it fell so flat, you might as well die.",
@@ -36,7 +36,6 @@ namespace JustineCore
             "While buying clothes, you accidentally tried on a coat of another customer.",
             "You opened your laptop in public and that weird video started playing at full volume."
         };
-
         public static readonly string[] MissionSuccessCauses = new[]
         {
             "You actually failed the objective but managed to get a 50% off your sandwich.",

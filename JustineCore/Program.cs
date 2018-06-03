@@ -1,4 +1,5 @@
 ﻿using FluentScheduler;
+using ImageMagick;
 using JustineCore.Configuration;
 using System;
 using System.Threading;
@@ -19,7 +20,6 @@ namespace JustineCore
 #else
             Discord.Logger.Log("[APPLICATION TYPE] Release Mode");
 #endif  
-
             JobManager.Initialize(new Registry());
 
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;

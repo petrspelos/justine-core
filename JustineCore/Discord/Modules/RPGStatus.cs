@@ -7,6 +7,7 @@ using JustineCore.Discord.Preconditions;
 using JustineCore.Discord.Providers.UserData;
 using JustineCore.Entities;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -208,6 +209,71 @@ Gold: {gold}
             _djp.RemoveByUserId(Context.User.Id);
 
             await ReplyAsync($"{Context.User.Mention}, you collected {reward} gold for your digging.");
+        }
+
+        [Command("steal reward")]
+        [RequireDataCollectionConsent]
+        [RequireRpgAlive]
+        public async Task StealReward(IGuildUser target)
+        {
+            if(target.Id == Context.User.Id)
+            {
+                await ReplyAsync($"{Context.User.Mention}, excuse me? Don't get me started on how META this shit is...");
+#if !DEBUG
+                return;
+#endif
+            }
+
+#if !DEBUG
+            if (_djp.IsDigging(Context.User.Id))
+            {
+                await ReplyAsync($"{Context.User.Mention}, you cannot steal rewards while digging.");
+                return;
+            }
+#endif
+
+            if(!_userProvider.GlobalDataExists(target.Id))
+            {
+                await ReplyAsync($"{Context.User.Mention}, unfortunately, {target.Nickname??target.Username} is not playing the game. =/");
+                return;
+            }
+
+            if (!_djp.IsDigging(target.Id))
+            {
+                await ReplyAsync($"{Context.User.Mention}, {target.Nickname??target.Username} is not digging.");
+                return;
+            }
+
+            var job = _djp.Get(j => j.UserId == target.Id).FirstOrDefault();
+
+            if(!job.IsComplete())
+            {
+                await ReplyAsync($"{Context.User.Mention}, {target.Nickname??target.Username} is not done digging. But you ARE a dick for trying.");
+                return;
+            }
+
+            var success = Utility.Random.Next(0, 101) < 30;
+
+            var reward = (uint)job.GetReward();
+
+            if(success)
+            {
+                var user = _userProvider.GetGlobalUserData(Context.User.Id);
+                user.RpgAccount.AddGold(reward);
+                _userProvider.SaveGlobalUserData(user);
+
+                await ReplyAsync($":spy: {Context.User.Mention} managed to steal {reward} gold from {target.Mention}! :gun:\n\n**What a dick...**");
+            }
+            else
+            {
+                var targetUser = _userProvider.GetGlobalUserData(target.Id);
+                targetUser.RpgAccount.AddGold(reward);
+                _userProvider.SaveGlobalUserData(targetUser);
+
+                await ReplyAsync($":shield: {Context.User.Mention} tried to steal {reward} gold from {target.Mention}, but **they failed**!\n\nThe reward was automatically given to {target.Mention}.");
+            }
+
+            _djp.RemoveByUserId(Context.User.Id);
         }
 
         [Command("gold dig")]
@@ -461,27 +527,33 @@ Your task is {Utility.GetRandomElement(Constants.MissionPitches.ToList())}");
 
                 if(!success)
                 {
-                    await ReplyAsync($@"{Context.User.Mention},
-
-:x: **Your mission failed.** 
-
-{Utility.GetRandomElement(Constants.MissionFailCauses.ToList())} :coffin:
-
-:heart: -{damageTaken}");
+                    await Context.Channel.SendFileAsync(
+                        new MemoryStream(Utility.GetMissionFailureImage(
+                            Context.User,
+                            0,
+                            damageTaken,
+                            rpgUser.GetGoldAmount(),
+                            rpgUser.Health
+                        )), 
+                        "r.jpg",
+                        text: $"{Context.User.Mention}, {Utility.GetRandomElement(Constants.MissionFailCauses.ToList())}"
+                    );
                 }
                 else
                 {
                     rpgUser.AddGold(reward);
 
-                    await ReplyAsync($@"{Context.User.Mention},
-
-:white_check_mark: **Your mission was a success!**
-
-{Utility.GetRandomElement(Constants.MissionSuccessCauses.ToList())}
-
-:heart: -{damageTaken} | :moneybag: {reward}
-
-You now have **{rpgUser.Health} HP** and **{rpgUser.GetGoldAmount()} gold**.");
+                    await Context.Channel.SendFileAsync(
+                        new MemoryStream(Utility.GetMissionFailureImage(
+                            Context.User,
+                            0,
+                            damageTaken,
+                            rpgUser.GetGoldAmount(),
+                            rpgUser.Health
+                        )), 
+                        "r.jpg",
+                        text: $"{Context.User.Mention}, {Utility.GetRandomElement(Constants.MissionSuccessCauses.ToList())}"
+                    );
                 }
 
                 rpgUser.OnAdventure = false;
