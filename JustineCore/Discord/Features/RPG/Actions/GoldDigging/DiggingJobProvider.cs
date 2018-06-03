@@ -111,12 +111,6 @@ namespace JustineCore.Discord.Features.RPG.GoldDigging
             if(job is null) return;
             if(!_gudp.GlobalDataExists(job.UserId)) return;
 
-            var reward = (uint)(Constants.DiggingGoldPerHour * job.DiggingLengthInHours);
-
-            var user = _gudp.GetGlobalUserData(job.UserId);
-
-            user.RpgAccount.AddGold(reward);
-
             try
             {
                 var discordUser = _dcon.client.GetUser(job.UserId);
@@ -124,31 +118,12 @@ namespace JustineCore.Discord.Features.RPG.GoldDigging
                 var g = _dcon.client.GetGuild(job.GuildId);
                 var ch = g.GetTextChannel(job.TextChannelId);
 
-                // DIGGING UP A DEAD GUY CHANCE
-                var deadPlayers = _gudp.SearchByPredicate(u => u.RpgAccount.Health <= 0);
-                if(deadPlayers.Count() > 0 && Utility.Random.Next(0, 101) > 10)
-                {
-                    var luckyGuy = Utility.GetRandomElement(deadPlayers.ToList());
-                    var luckyUser = g.GetUser(luckyGuy.DiscordId);
-                    var luckyMention = (luckyUser == null) ? "someone from a different server" : luckyUser.Mention;
-
-                    await ch.SendMessageAsync($":coffin: Oh damn! {discordUser.Mention} you dug up {luckyMention}.\n\nThanks to you, they get +1 health, which makes them alive again. :thumbsup:");
-
-                    luckyGuy.RpgAccount.Health = 1;
-                    _gudp.SaveGlobalUserData(luckyGuy);
-                }
-                // ----------------------------
-
-                await ch.SendMessageAsync($"{discordUser.Mention}, you finished your digging and got {reward} gold!");
+                await ch.SendMessageAsync($"{discordUser.Mention}, you finished your digging! Use `gold dig reward` to collect your reward.");
             }
             catch
             {
                 Logger.Log("[DiggingJobProvider] Couldn't send a completion message.", ConsoleColor.Red);
             }
-
-            _gudp.SaveGlobalUserData(user);
-
-            RemoveByUserId(job.UserId);
         }
     }
 }

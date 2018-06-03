@@ -180,6 +180,36 @@ Gold: {gold}
             await ReplyAsync($"{Context.User.Mention}, you cancelled your digging and will not get any reward.");
         }
 
+        [Command("gold dig reward")]
+        [RequireDataCollectionConsent]
+        [RequireRpgAlive]
+        public async Task CollectDiggingReward()
+        {
+            if (!_djp.IsDigging(Context.User.Id))
+            {
+                await ReplyAsync($"{Context.User.Mention}, you need to start digging before you attempt to collect your reward.");
+                return;
+            }
+
+            var job = _djp.Get(j => j.UserId == Context.User.Id).FirstOrDefault();
+
+            if(!job.IsComplete())
+            {
+                await ReplyAsync($"{Context.User.Mention}, you are not done digging. You will be notified when your digging comes to an end.");
+                return;
+            }
+
+            var reward = (uint)job.GetReward();
+
+            var user = _userProvider.GetGlobalUserData(Context.User.Id);
+            user.RpgAccount.AddGold(reward);
+            _userProvider.SaveGlobalUserData(user);
+
+            _djp.RemoveByUserId(Context.User.Id);
+
+            await ReplyAsync($"{Context.User.Mention}, you collected {reward} gold for your digging.");
+        }
+
         [Command("gold dig")]
         [RequireDataCollectionConsent]
         [RequireRpgAlive]
