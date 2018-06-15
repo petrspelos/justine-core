@@ -4,8 +4,8 @@ namespace JustineCore
     {
         public const string DefaultAvatarUrl = "https://i.imgur.com/vM8PWVB.png";
         public const string DiscordBgHex = "#36393e";
-        public const int DiggingGoldPerHour = 10;
-        public const int StreakBonusPerHour = 20;
+        public const int DiggingGoldPerHour = 5;
+        public const int StreakBonusPerHour = 1;
         public static readonly string[] ValidUpgradeLabels = new[] {"str", "spd", "lck", "int", "end"}; // hp temorarily removed
         public static readonly string[] MissionPitches = new[] 
         {

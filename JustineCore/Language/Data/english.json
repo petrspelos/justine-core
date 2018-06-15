@@ -4,6 +4,7 @@
   "Resources": {
     "TEST_STRING": "Hello, World!",
     "EXCEPTION_RESPONSE_TEMPLATE(@REASON)": ":anger: **Couldn't complete the operation**\nApparently, {0}",
+    "COMMAND_ERROR_DOUBLE_SPACES": ":question: Your command contains two or more consecutive spaces. This usually isn't correct.",
     "SUMMARY_DATA_DELETE": "Deletes all collected data about you and also removes your consent to further data collection. (You cannot take this action back)",
     "SUMMARY_DATA_VIEW": "Returns a direct unedited copy of all data collected about you in json form.",
     "SUMMARY_DATA_ACCEPT": "Giving consent to data collection for the purposes of providing features.",

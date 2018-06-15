@@ -26,19 +26,19 @@ namespace JustineCore.Discord.Features.RPG.Actions
         /// <summary>
         /// Gets a number of items of a certain type owned. (0 if not found)
         /// </summary>
-        public static int GetItemCount(this RpgAccount accout, uint itemId)
+        public static uint GetItemCount(this RpgAccount accout, uint itemId)
         {
-            return (int) accout.InventorySlots.Where(s => s.Item.Id == itemId).Sum(s => s.Amount);
+            return (uint)accout.InventorySlots.Where(s => s.Item.Id == itemId).Sum(s => s.Amount);
         }
 
-        public static int GetGoldAmount(this RpgAccount account)
-        {
-            return account.GetItemCount(goldId);
-        }
+        // public static int GetGoldAmount(this RpgAccount account)
+        // {
+        //     return (int)account.GetItemCount(goldId);
+        // }
 
-        public static void AddGold(this RpgAccount account, uint amount)
-        {
-            account.AddItemById(goldId, amount);
-        }
+        // public static void AddGold(this RpgAccount account, uint amount)
+        // {
+        //     account.AddItemById(goldId, amount);
+        // }
     }
 }

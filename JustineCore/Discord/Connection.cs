@@ -45,6 +45,7 @@ namespace JustineCore.Discord
             client = new DiscordSocketClient(socketConfig);
             client.Log += Logger.Log;
             client.Ready += OnReady;
+            client.UserJoined += Joined;
 
             _commandHandler = new CommandHandler();
             await _commandHandler.InitializeAsync(client);
@@ -69,6 +70,12 @@ namespace JustineCore.Discord
             {
                 cancellationToken.ThrowIfCancellationRequested();
             }
+        }
+
+        private async Task Joined(SocketGuildUser user)
+        {
+            var ch = user.Guild.GetTextChannel(448884032391086092);
+            await ch.SendMessageAsync("Welcome to the Discord server" + user.Mention + "! Feel free to ask around if you need help!");
         }
 
         private Task OnReady()

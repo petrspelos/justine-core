@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using JustineCore.Configuration;
 using JustineCore.Discord.Features.RPG;
 using JustineCore.Discord.Features.RPG.GoldDigging;
+using System.Text.RegularExpressions;
+using JustineCore.Discord.Providers.TutorialBots;
 
 namespace JustineCore.Discord.Handlers
 {
@@ -22,12 +24,17 @@ namespace JustineCore.Discord.Handlers
         private IServiceProvider _services;
         private ILocalization _lang;
 
+        private VerificationProvider _botVer;
+
         internal async Task InitializeAsync(DiscordSocketClient client)
         {
             _client = client;
+            Global.Client = client;
             _commandService = new CommandService();
 
             _lang = Unity.Resolve<ILocalization>();
+
+            _botVer = Unity.Resolve<VerificationProvider>();
 
             _services = new ServiceCollection()
                 .AddSingleton(client)
@@ -38,6 +45,7 @@ namespace JustineCore.Discord.Handlers
                 .AddSingleton(Unity.Resolve<AppConfig>())
                 .AddSingleton(Unity.Resolve<RpgRepository>())
                 .AddSingleton(Unity.Resolve<DiggingJobProvider>())
+                .AddSingleton(_botVer)
                 .BuildServiceProvider();
 
             await _commandService.AddModulesAsync(Assembly.GetEntryAssembly());
@@ -52,7 +60,12 @@ namespace JustineCore.Discord.Handlers
             if (msg.Channel is SocketDMChannel) return;
 
             var context = new SocketCommandContext(_client, msg);
-            if (context.User.IsBot) return;
+            if (context.User.IsBot) 
+            {
+                ShowcaseVerificationGate(context);
+                CheckForBotValidation(context);
+                return;
+            }
 
             var argPos = 0;
 #if DEBUG
@@ -70,10 +83,53 @@ namespace JustineCore.Discord.Handlers
 #endif
         }
 
+        private async void ShowcaseVerificationGate(SocketCommandContext context)
+        {
+            if(context.Channel.Id != 381399595600838658) return;
+
+            if(!context.User.IsBot) return;
+
+            if(_botVer.IsVerified(context.User.Id)) return;
+
+            await context.Message.DeleteAsync();
+
+            await context.Channel.SendMessageAsync($"The {context.User.Mention} <:bot:400105688967413781> is not verified. Only verified bots can respond in this channel.");
+        }
+
+        private async void CheckForBotValidation(SocketCommandContext context)
+        {
+            if(context.Message.MentionedUsers.Count != 1) return;
+
+            if(context.Message.Content.Contains("[NOT-VALIDATION]")) return;
+
+            var mentioned = context.Message.MentionedUsers.FirstOrDefault();
+
+            if(mentioned == null) return;
+
+            if(mentioned.IsBot) return;
+
+            var success = _botVer.CheckVerification(mentioned.Id, context.User.Id, context.Message.Content);
+
+            if(!success) return;
+            
+            var role = context.Guild.Roles.FirstOrDefault(r => r.Id == 381409798903824394);
+
+            if(!(role is null))
+            {
+                await ((SocketGuildUser)mentioned).AddRoleAsync(role);
+            }
+
+            await context.Channel.SendMessageAsync($"{context.User.Mention} is now verified as a <:bot:400105688967413781> created by {mentioned.Mention}.");
+        }
+
         private async Task TryRunAsBotCommand(SocketCommandContext context, int argPos)
         {
             var cmdSearchResult = _commandService.Search(context, argPos);
-            if (cmdSearchResult.Commands.Count == 0) return;
+            if (cmdSearchResult.Commands.Count == 0)
+            {
+                CheckIfDoubleSpace(context);
+                return;
+            }
 
             Logger.Log($"[Command] {context.User.Username} is running '{cmdSearchResult.Commands.FirstOrDefault().Command.Name}' - Full message: '{context.Message.Content}'");
 
@@ -82,13 +138,21 @@ namespace JustineCore.Discord.Handlers
             #pragma warning disable CS4014
             commandTask.ContinueWith(task => 
             {
-                if (!task.Result.IsSuccess && task.Result.Error != CommandError.UnknownCommand)
+                if (!task.Result.IsSuccess)
                 {
                     var exceptionMessage = _lang.FromTemplate("EXCEPTION_RESPONSE_TEMPLATE(@REASON)", objects: task.Result.ErrorReason);
                     context.Channel.SendMessageAsync(exceptionMessage);
                 }
             });
             #pragma warning restore CS4014
+        }
+
+        private async void CheckIfDoubleSpace(SocketCommandContext context)
+        {
+            var regex = new Regex("  +");
+            if(!regex.IsMatch(context.Message.Content)) return;
+
+            await context.Channel.SendMessageAsync(_lang.Resolve($"{context.User.Mention}, [COMMAND_ERROR_DOUBLE_SPACES]"));
         }
     }
 }

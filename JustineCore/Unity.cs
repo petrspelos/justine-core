@@ -1,5 +1,6 @@
 ﻿using JustineCore.Configuration;
 using JustineCore.Discord.Features.RPG;
+using JustineCore.Discord.Providers.TutorialBots;
 using JustineCore.Language;
 using JustineCore.Storage;
 using Unity;
@@ -30,6 +31,7 @@ namespace JustineCore
             _container.RegisterType<AppConfig>(new ContainerControlledLifetimeManager());
             _container.RegisterType<RpgRepository>(new ContainerControlledLifetimeManager());
             _container.RegisterType<Discord.Connection>(new ContainerControlledLifetimeManager());
+            _container.RegisterType<VerificationProvider>(new ContainerControlledLifetimeManager());
         }
 
         public static T Resolve<T>()

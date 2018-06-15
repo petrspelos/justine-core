@@ -1,9 +1,9 @@
 ﻿using FluentScheduler;
-using ImageMagick;
 using JustineCore.Configuration;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Humanizer;
 
 #pragma warning disable 4014
 
@@ -15,6 +15,8 @@ namespace JustineCore
 
         private static async Task Main(string[] args)
         {
+
+
 #if DEBUG
             Discord.Logger.Log("[APPLICATION TYPE] Debug Mode");
 #else
@@ -39,6 +41,8 @@ namespace JustineCore
         {
             var exception = (Exception) unhandledExceptionEventArgs.ExceptionObject;
             Discord.Logger.Log($"[Unhandled Exception] {exception.Message}");
+            Discord.Logger.Log($"[Stringified Exception] {exception}");
+            Discord.Logger.Log($"[Stack Trace] {exception.StackTrace}");
             Connection.NotifyOwner($"Whops, I crashed!\n{exception.Message}");
         }
     }

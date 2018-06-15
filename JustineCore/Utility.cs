@@ -1,11 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using Discord;
 using FluentScheduler;
 using Humanizer;
-using ImageMagick;
+using JustineCore.Discord;
 using JustineCore.Discord.Features.RPG;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Processing.Text;
+using SixLabors.ImageSharp.Processing.Transforms;
+using SixLabors.ImageSharp.Processing.Processors;
+using SixLabors.ImageSharp.Processing.Drawing;
+using SixLabors.Fonts;
+using SixLabors.Primitives;
 
 namespace JustineCore
 {
@@ -13,50 +23,29 @@ namespace JustineCore
     {
         public static Random Random = new Random(DateTime.Now.Millisecond);
 
-        public static byte[] GetMissionFailureImage(IUser user, int gainedG, int lostHp, int currentG, int currentHp)
+        public static string GetTestImage(string avatarUrl)
         {
-            return GetMissionImage("img/failure_template.png", user, gainedG, lostHp, currentG, currentHp);
-        }
-
-        public static byte[] GetMissionSuccessImage(IUser user, int gainedG, int lostHp, int currentG, int currentHp)
-        {
-            return GetMissionImage("img/success_template.png", user, gainedG, lostHp, currentG, currentHp);
-        }
-
-        public static byte[] GetMissionImage(string templateImg, IUser user, int gainedG, int lostHp, int currentG, int currentHp)
-        {
-            var url = user.GetAvatarUrl(ImageFormat.Jpeg);
-            if(url is null) url = Constants.DefaultAvatarUrl;
-
             var webClient = new WebClient();
-            byte[] imageBytes = webClient.DownloadData(url);
+            byte[] imageBytes = webClient.DownloadData(avatarUrl);
 
-            using (MagickImage image = new MagickImage(new MagickColor(Constants.DiscordBgHex), 200, 75))
+            using(var background = SixLabors.ImageSharp.Image.Load("img/success_template.png"))
+            using(var template = SixLabors.ImageSharp.Image.Load("img/success_template.png"))
+            using(var avatar = SixLabors.ImageSharp.Image.Load(imageBytes))
             {
-                using (MagickImage inner = new MagickImage(imageBytes))
-                {
-                    inner.Resize(40, 40);
-                    image.Composite(inner, 10, 10, CompositeOperator.Over);
-                }
+                //Font font = SystemFonts.CreateFont("Arial", 15);
 
-                using (MagickImage template = new MagickImage(templateImg))
-                {
-                    image.Composite(template, 0, 0, CompositeOperator.Over);
-                }
+                avatar.Mutate(x => x
+                    .Resize(new Size(40,40))
+                    //.DrawText("sexy feet", font, Rgba32.Pink, new PointF(0, 0))
+                );
 
-                new Drawables()
-                    .FontPointSize(10)
-                    .Font("Arial")
-                    .FillColor(MagickColors.White)
-                    .TextAlignment(TextAlignment.Left)
-                    .Text(80, 45, $"+{gainedG} gold | -{lostHp} HP")
-                    .FillColor(MagickColor.FromRgb(189,189,189))
-                    .Text(20, 68, $"{currentHp}")
-                    .Text(62, 68, $"{currentG}")
-                    .Draw(image);
+                background.Mutate(x => x
+                    .DrawImage(avatar, 1.0f, new Point(10,10))
+                    .DrawImage(template, 1.0f, new Point(0,0))
+                );
 
-                image.Format = MagickFormat.Jpeg;
-                return image.ToByteArray();
+                background.Save("img/t.jpg");
+                return "img/t.jpg";
             }
         }
 
@@ -80,6 +69,11 @@ namespace JustineCore
         public static int GetGeneralCurveCost(int lvl)
         {
             return (int)(Math.Pow(lvl, 2.0) * 15.0);
+        }
+
+        public static uint GetGeneralCurveCost(uint lvl)
+        {
+            return (uint)(Math.Pow(lvl, 2.0) * 15.0);
         }
 
         public static void ExecuteAt(Action action, int hours, int minutes)

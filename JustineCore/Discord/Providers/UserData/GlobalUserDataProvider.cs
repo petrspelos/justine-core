@@ -4,6 +4,7 @@ using System.Linq;
 using JustineCore.Entities;
 using JustineCore.Storage;
 using JustineCore.Discord.Features.RPG.Actions;
+using System.Collections.Concurrent;
 
 namespace JustineCore.Discord.Providers.UserData
 {
@@ -77,6 +78,7 @@ namespace JustineCore.Discord.Providers.UserData
 
         private void LoadGlobalUserData()
         {
+            // TODO: FIXME: get a dictionary from a group collection by getting individual Key-Value pairs
             _globalUserDatas = _dataStorage.GetGroup<GlobalUserData>(GlobalDataGroup).ToList();
         }
     }
