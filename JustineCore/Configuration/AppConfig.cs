@@ -8,7 +8,6 @@ namespace JustineCore.Configuration
     public class AppConfig
     {
         internal DiscordBotConfig DiscordBotConfig;
-
         private readonly IDataStorage _storage;
         private const string BotConfigKey = "botConfig";
 

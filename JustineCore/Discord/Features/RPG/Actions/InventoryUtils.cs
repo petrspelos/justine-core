@@ -5,11 +5,13 @@ namespace JustineCore.Discord.Features.RPG.Actions
     public static class InventoryUtils
     {
         private static uint goldId;
+        private static uint hpPotionId;
 
         static InventoryUtils()
         {
             var repo = Unity.Resolve<RpgRepository>();
             goldId = repo.GetItemByName("gold").Id;
+            hpPotionId = repo.GetItemByName("Health Potion").Id;
         }
 
         /// <summary>

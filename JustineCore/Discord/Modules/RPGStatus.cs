@@ -31,6 +31,52 @@ namespace JustineCore.Discord.Modules
             _djp = digJobProv;
         }
 
+        [Command("m")]
+        public async Task NSFW()
+        {
+            await ReplyAsync("**<:happytighteyes:409434066396643328> Ah, a new programmer! That means I get to do my job again.**");
+        }
+
+        [Command("use health potion")]
+        [Alias("use hp")]
+        [RequireDataCollectionConsent]
+        public async Task UseHealthPotion()
+        {
+            var acc = _userProvider.GetGlobalUserData(Context.User.Id);
+            
+            var item = _rpgItemRepository.GetItemByName("Health Potion");
+
+            if(!acc.RpgAccount.HasItem(item.Id))
+            {
+                await ReplyAsync("You don't have any more health potions. _(RIP)_");
+                return;
+            }
+
+            acc.RpgAccount.RemoveItemCount(item.Id, 1);
+            acc = item.UseDelegate(acc);
+
+            _userProvider.SaveGlobalUserData(acc);
+
+            await ReplyAsync(":heart_exclamation: You drank a health potion and you feel better.");
+        }
+
+        [Command("spawn health potion")]
+        [Alias("spawn hp")]
+        [RequireDataCollectionConsent]
+        [RequireOwner]
+        public async Task SpawnHealthPotion(SocketGuildUser target)
+        {
+            var acc = _userProvider.GetGlobalUserData(target.Id);
+            
+            var item = _rpgItemRepository.GetItemByName("Health Potion");
+
+            acc.RpgAccount.AddItemById(item.Id, 1);
+
+            _userProvider.SaveGlobalUserData(acc);
+
+            await ReplyAsync("Success");
+        }
+
         [Command("stats")]
         [RequireDataCollectionConsent]
         public async Task ShowStats()

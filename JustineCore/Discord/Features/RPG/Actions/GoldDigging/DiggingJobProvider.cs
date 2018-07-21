@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JustineCore.Discord.Features.RPG.Actions;
 using System.Threading.Tasks;
+using Discord.WebSocket;
 
 namespace JustineCore.Discord.Features.RPG.GoldDigging
 {
@@ -15,13 +16,13 @@ namespace JustineCore.Discord.Features.RPG.GoldDigging
         private List<DiggingJob> _activeJobs;
         private IDataStorage _ds;
         private GlobalUserDataProvider _gudp;
-        private Discord.Connection _dcon;
+        private DiscordSocketClient _client;
 
-        public DiggingJobProvider(IDataStorage dataStorage, GlobalUserDataProvider userProvider, Discord.Connection connection)
+        public DiggingJobProvider(IDataStorage dataStorage, GlobalUserDataProvider userProvider, DiscordSocketClient client)
         {
+            _client = client;
             _ds = dataStorage;
             _gudp = userProvider;
-            _dcon = connection;
 
             try
             {
@@ -113,9 +114,9 @@ namespace JustineCore.Discord.Features.RPG.GoldDigging
 
             try
             {
-                var discordUser = _dcon.client.GetUser(job.UserId);
+                var discordUser = _client.GetUser(job.UserId);
 
-                var g = _dcon.client.GetGuild(job.GuildId);
+                var g = _client.GetGuild(job.GuildId);
                 var ch = g.GetTextChannel(job.TextChannelId);
 
                 await ch.SendMessageAsync($"{discordUser.Mention}, you finished your digging! Use `gold dig reward` to collect your reward.");

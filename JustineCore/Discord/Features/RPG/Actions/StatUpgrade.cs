@@ -98,5 +98,10 @@ namespace JustineCore.Discord.Features.RPG.Actions
 
             return StatUpgradeResult.Success;
         }
+
+        public static void AddHealth(this RpgAccount account, int amount)
+        {
+            account.Health = Math.Clamp(account.Health + amount, 0, account.MaxHealth);
+        }
     }
 }

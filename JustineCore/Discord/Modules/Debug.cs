@@ -1,5 +1,6 @@
 using Discord;
 using Discord.Commands;
+using Discord.Rest;
 using Discord.WebSocket;
 using JustineCore.Configuration;
 using JustineCore.Discord.Features.Payloads;

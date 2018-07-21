@@ -3,6 +3,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using JustineCore.Configuration;
 using JustineCore.Discord.Features.Payloads;
+using JustineCore.Discord.Features.TutorialServer;
 using JustineCore.Discord.Preconditions;
 using JustineCore.Discord.Providers.TutorialBots;
 using JustineCore.Discord.Providers.UserData;
@@ -19,13 +20,47 @@ namespace JustineCore.Discord.Modules
 {
     public class TutorialServer : ModuleBase<SocketCommandContext>
     {
-        private GlobalUserDataProvider _gudp;
-        private VerificationProvider _botVer;
+        private readonly GlobalUserDataProvider _gudp;
+        private readonly VerificationProvider _botVer;
+        private readonly ProblemBoardService _pbService;
+        private readonly ProblemProvider _pp;
 
-        public TutorialServer(GlobalUserDataProvider gudp, VerificationProvider botVer)
+        public TutorialServer(GlobalUserDataProvider gudp, VerificationProvider botVer, ProblemBoardService pbService, ProblemProvider pp)
         {
             _gudp = gudp;
             _botVer = botVer;
+            _pbService = pbService;
+            _pp = pp;
+        }
+
+        private async Task<bool> UserIsOwner(SocketGuildUser user)
+        {
+            var ownerId = (await Context.Client.GetApplicationInfoAsync()).Owner.Id;
+            return user.Id == ownerId;
+        }
+
+        [Command("solve")]
+        [RequireUserPermission(GuildPermission.Administrator)]
+        public async Task AdminSolveProblem(IGuildUser user, int problemId)
+        {
+            try
+            {
+                await _pbService.SolveProblemForUser(problemId, user.Id);
+                await ReplyAsync("Done");
+            }
+            catch(Exception)
+            {
+                var acc = _pp.GetAccount(user.Id);
+                await ReplyAsync($"The Problem ID is most likely invalid. This might help you with debugging:\n\n```\nAccount has {acc.Problems.Count} active problems.\n```");
+            }
+        }
+
+        [Command("problem for")]
+        [RequireUserPermission(GuildPermission.Administrator)]
+        public async Task AdminCreateProblem(IGuildUser user, [Remainder]string problem)
+        {
+            await _pbService.CreateProblemForUser(problem, user.Id);
+            await ReplyAsync("Done");
         }
 
         [Command("unverified-bots")]
@@ -48,6 +83,36 @@ namespace JustineCore.Discord.Modules
             {
                 await ReplyAsync("There are too many unverified bots to list on this server.");
             }
+        }
+
+        [Command("bots"), Alias("bot")]
+        public async Task GetBots(IGuildUser target)
+        {
+            if(target.IsBot)
+            {
+                await ReplyAsync($"{target.Mention}, BOTs don't have BOTs. Although that would be wild... And I should probably make one. :thinking:");
+                return;
+            }
+
+            var ownedBots = _botVer.SearchByPredicate(d => d.OwnerId == target.Id && d.Verified == true).ToList();
+
+            if(!ownedBots.Any())
+            {
+                await ReplyAsync($"{target.Mention}, {target.Nickname??target.Username} does not have any registered BOTs.");
+                return;
+            }
+
+            var result = new StringBuilder();
+            result.Append($"{target.Mention}, {target.Nickname??target.Username} owns the following bots:\n");
+            foreach(var vBot in ownedBots)
+            {
+                var bot = Context.Guild.GetUser(vBot.BotId);
+                if(bot is null) continue;
+                result.Append($"{bot.Mention}\n");
+            }
+            result.Append($"_If this list is empty, please notify Peter, because it means the BOT/s got kicked without proper closure._");
+
+            await ReplyAsync(result.ToString());
         }
 
         [Command("owner")]

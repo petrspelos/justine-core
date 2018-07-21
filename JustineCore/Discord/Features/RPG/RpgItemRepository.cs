@@ -1,9 +1,12 @@
-﻿using JustineCore.Storage;
+﻿using JustineCore.Entities;
+using JustineCore.Storage;
+using JustineCore.Discord.Features.RPG.Actions;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace JustineCore.Discord.Features.RPG
 {
+    public delegate GlobalUserData Use(GlobalUserData user);
     public class RpgRepository
     {
         private const string DataStorageKey = "RpgItemRepository";
@@ -11,23 +14,44 @@ namespace JustineCore.Discord.Features.RPG
 
         public RpgRepository(IDataStorage dataStorage)
         {
-            try
+            _items = new List<RpgItem>
             {
-                _items = dataStorage.Get<List<RpgItem>>(DataStorageKey);
-            }
-            catch (DataStorageKeyDoesNotExistException)
-            {
-                _items = new List<RpgItem>
+                new RpgItem
                 {
-                    new RpgItem
-                    {
-                        Id = 1,
-                        Name = "Gold",
-                        IconUrl = "?"
+                    Id = 1,
+                    Name = "Gold",
+                    IconUrl = "?"
+                },
+                new RpgItem
+                {
+                    Id = 2,
+                    Name = "Health Potion",
+                    IconUrl = "?",
+                    UseDelegate = (GlobalUserData u) => {
+                        u.RpgAccount.AddHealth(Utility.Random.Next(5,20));
+                        return u;
                     }
-                };
-                dataStorage.Store(_items, DataStorageKey);
-            }
+                }
+            };
+
+            // // Temporarily disabled to test other items
+            // try
+            // {
+            //     _items = dataStorage.Get<List<RpgItem>>(DataStorageKey);
+            // }
+            // catch (DataStorageKeyDoesNotExistException)
+            // {
+            //     _items = new List<RpgItem>
+            //     {
+            //         new RpgItem
+            //         {
+            //             Id = 1,
+            //             Name = "Gold",
+            //             IconUrl = "?"
+            //         }
+            //     };
+            //     dataStorage.Store(_items, DataStorageKey);
+            // }
         }
 
         /// <summary>

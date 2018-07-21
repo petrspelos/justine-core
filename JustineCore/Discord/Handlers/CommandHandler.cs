@@ -14,6 +14,7 @@ using JustineCore.Discord.Features.RPG;
 using JustineCore.Discord.Features.RPG.GoldDigging;
 using System.Text.RegularExpressions;
 using JustineCore.Discord.Providers.TutorialBots;
+using JustineCore.Discord.Features.TutorialServer;
 
 namespace JustineCore.Discord.Handlers
 {
@@ -23,6 +24,8 @@ namespace JustineCore.Discord.Handlers
         private CommandService _commandService;
         private IServiceProvider _services;
         private ILocalization _lang;
+        private WaitingRoomService _waitingRoomService;
+        private ProblemBoardService _problemBoardService;
 
         private VerificationProvider _botVer;
 
@@ -36,8 +39,12 @@ namespace JustineCore.Discord.Handlers
 
             _botVer = Unity.Resolve<VerificationProvider>();
 
+            _waitingRoomService = Unity.Resolve<WaitingRoomService>();
+
+            _problemBoardService = Unity.Resolve<ProblemBoardService>();
+
             _services = new ServiceCollection()
-                .AddSingleton(client)
+                .AddSingleton(_client)
                 .AddSingleton(_commandService)
                 .AddSingleton(_lang)
                 .AddSingleton(Unity.Resolve<IDataStorage>())
@@ -45,11 +52,19 @@ namespace JustineCore.Discord.Handlers
                 .AddSingleton(Unity.Resolve<AppConfig>())
                 .AddSingleton(Unity.Resolve<RpgRepository>())
                 .AddSingleton(Unity.Resolve<DiggingJobProvider>())
+                .AddSingleton(_waitingRoomService)
+                .AddSingleton(_problemBoardService)
+                .AddSingleton(Unity.Resolve<ProblemProvider>())
                 .AddSingleton(_botVer)
                 .BuildServiceProvider();
 
             await _commandService.AddModulesAsync(Assembly.GetEntryAssembly());
             _client.MessageReceived += HandleCommandAsync;
+            _client.MessageReceived += _waitingRoomService.MessageReceived;
+            _client.UserJoined += _waitingRoomService.UserJoined;
+            _client.UserLeft += _waitingRoomService.UserLeft;
+
+            _client.MessageReceived += _problemBoardService.MessageReceived;
 
             _client.ReactionAdded += DmDeletions.CheckDeletionRequest;
         }
@@ -70,7 +85,7 @@ namespace JustineCore.Discord.Handlers
             var argPos = 0;
 #if DEBUG
             // return if not DEBUG guild
-            if(context.Guild.Id != 338393057437286411) return;
+            if(context.Guild.Id != Constants.ServiceServerId) return;
             if (msg.HasStringPrefix("> ", ref argPos))
             {
                 await TryRunAsBotCommand(context, argPos);

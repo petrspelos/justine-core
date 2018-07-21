@@ -39,6 +39,14 @@ namespace JustineCore.Language
             return language.Resources[key];
         }
 
+        public List<string> GetResourcePool(string key, int languageId = 0)
+        {
+            var language = _languages.FirstOrDefault(l => l.LanguageId == languageId);
+            if (language is null) throw new LanguageNotFoundException($"Id '{languageId}' not found.");
+            if (!language.ResourcePools.ContainsKey(key)) throw new LanguageResourceKeyNotFoundException($"ResourcePool with key '{key}' wasn't found.");
+            return language.ResourcePools[key];
+        }
+
         /// <summary>
         /// Returns a string with all language resource keys that are enclosed with [] replaced by their values.
         /// e.g.
@@ -76,6 +84,30 @@ namespace JustineCore.Language
             catch (Exception)
             {
                 return $"[{key}]";
+            }
+        }
+
+        public string GetPooledResource(string key, int languageId = 0)
+        {
+            var pool = GetResourcePool(key, languageId);
+            if(!pool.Any()) return string.Empty;
+            return Utility.GetRandomElement<string>(pool);
+        }
+
+        public string FromPooledTemplate(string key, int languageId = 0, params object[] objects)
+        {
+            throw new NotImplementedException();
+        }
+
+        private List<string> GetResourcePoolSafe(string key, int languageId = 0)
+        {
+            try
+            {
+                return GetResourcePool(key, languageId);
+            }
+            catch (Exception)
+            {
+                return new List<string>();
             }
         }
     }

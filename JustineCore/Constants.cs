@@ -2,6 +2,36 @@ namespace JustineCore
 {
     public static class Constants
     {
+        public const ulong ServiceServerId = 464334692502470666;
+        public const ulong ServiceChannelId = 470187312827990016;
+        public const ulong ServiceGeneralChannelId = 464334693089935361;
+        public const ulong ServiceRole1 = 470188590538948608;
+
+#if DEBUG
+        public const ulong TutorialServerId = 464334692502470666;
+        public const ulong WaitingRoomChannelId = 470187312827990016;
+        public const ulong TutorialMemberRoleId = 470188590538948608;
+        public const ulong TutorialBotRoleId = 470188590538948608;
+        public const ulong TutorialGeneralId = 470187312827990016;
+        public const ulong TutorialBotDevRoleId = 470188590538948608;
+        public const ulong TutoriaProblemBoardId = 464334693089935361;
+# else
+        public const ulong TutorialServerId = 377879473158356992;
+        public const ulong WaitingRoomChannelId = 411864218548043785;
+        public const ulong TutorialMemberRoleId = 411865173318696961;
+        public const ulong TutorialBotRoleId = 381399631369863171;
+        public const ulong TutorialGeneralId = 377879473644765185;
+        public const ulong TutorialBotDevRoleId = 381409798903824394;
+        public const ulong TutoriaProblemBoardId = 470217412147675137;
+# endif
+        public const int ProblemsDeleteAfterHours = 2;
+
+        public const string TutorialProblemMarker = "<:problem:470220494835286016>";
+        public const string TutorialSolvedMarker = "<:solved:470220493635715072>";
+
+        public const ulong MiunieId = 411505318124847114;
+        public const ulong JustineId = 370963330782986250;
+
         public const string DefaultAvatarUrl = "https://i.imgur.com/vM8PWVB.png";
         public const string DiscordBgHex = "#36393e";
         public const int DiggingGoldPerHour = 5;

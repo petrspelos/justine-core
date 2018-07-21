@@ -7,5 +7,6 @@ namespace JustineCore.Entities
         public uint LanguageId { get; set; }
         public string LanguageName { get; set; }
         public Dictionary<string, string> Resources { get; set; }
+        public Dictionary<string, List<string>> ResourcePools { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using JustineCore.Storage;
+﻿using JustineCore.Language;
+using JustineCore.Storage;
 using JustineCore.Tests.Helpers;
 using Unity;
 using Unity.Resolution;
@@ -23,6 +24,7 @@ namespace JustineCore.Tests
         {
             _container = new UnityContainer();
             _container.RegisterType<IDataStorage, InMemoryDataStorage>();
+            _container.RegisterSingleton<ILocalization, JsonLocalization>();
         }
 
         public static T Resolve<T>()

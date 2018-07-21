@@ -16,19 +16,21 @@ namespace JustineCore.Discord
 {
     public class Connection
     {
-        internal DiscordSocketClient client;
+        //internal DiscordSocketClient client;
+        private DiscordSocketClient _client;
         private CommandHandler _commandHandler;
         private readonly AppConfig _appConfig;
 
-        public Connection(AppConfig config)
+        public Connection(AppConfig config, DiscordSocketClient client)
         {
             _appConfig = config;
+            _client = client;
         }
 
         internal async Task NotifyOwner(string message)
         {
-            if(client.ConnectionState != ConnectionState.Connected) return;
-            var owner = client.GetUser(182941761801420802);
+            if(_client.ConnectionState != ConnectionState.Connected) return;
+            var owner = _client.GetUser(182941761801420802);
             var dm = await owner.GetOrCreateDMChannelAsync();
             await dm.SendMessageAsync(message);
         }
@@ -42,17 +44,16 @@ namespace JustineCore.Discord
                 LogLevel = LogSeverity.Verbose
             };
 
-            client = new DiscordSocketClient(socketConfig);
-            client.Log += Logger.Log;
-            client.Ready += OnReady;
-            client.UserJoined += Joined;
+            _client.Log += Logger.Log;
+            _client.Ready += OnReady;
+            //client.UserVoiceStateUpdated += VoiceStateUpdated;
 
             _commandHandler = new CommandHandler();
-            await _commandHandler.InitializeAsync(client);
+            await _commandHandler.InitializeAsync(_client);
 
             try
             {
-                await client.LoginAsync(TokenType.Bot, _appConfig.DiscordBotConfig.Token);
+                await _client.LoginAsync(TokenType.Bot, _appConfig.DiscordBotConfig.Token);
             }
             catch (HttpException e)
             {
@@ -62,7 +63,7 @@ namespace JustineCore.Discord
                 }
             }
 
-            await client.StartAsync();
+            await _client.StartAsync();
 
             RegisterScheduledMessages();
 
@@ -72,18 +73,12 @@ namespace JustineCore.Discord
             }
         }
 
-        private async Task Joined(SocketGuildUser user)
-        {
-            var ch = user.Guild.GetTextChannel(448884032391086092);
-            await ch.SendMessageAsync("Welcome to the Discord server" + user.Mention + "! Feel free to ask around if you need help!");
-        }
-
-        private Task OnReady()
+        private async Task OnReady()
         {
             var djp = Unity.Resolve<DiggingJobProvider>();
             djp.RegisterAllJobs();
 
-            return Task.CompletedTask;
+            await NotifyOwner("Justine Online");
         }
 
         private void ValidateToken()
@@ -104,7 +99,7 @@ namespace JustineCore.Discord
         {
             foreach (var p in sm.Payloads)
             {
-                p.Send(client);
+                p.Send(_client);
             }
         }
 

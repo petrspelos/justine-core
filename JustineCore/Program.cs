@@ -15,14 +15,8 @@ namespace JustineCore
 
         private static async Task Main(string[] args)
         {
-
-
-#if DEBUG
-            Discord.Logger.Log("[APPLICATION TYPE] Debug Mode");
-#else
-            Discord.Logger.Log("[APPLICATION TYPE] Release Mode");
-#endif  
             JobManager.Initialize(new Registry());
+            JobManager.JobException += OnJobFailed;
 
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
             
@@ -36,7 +30,16 @@ namespace JustineCore
 
             await Connection.ConnectAsync(CancellationToken.None);
         }
-        
+
+        private static void OnJobFailed(JobExceptionInfo exInfo)
+        {
+            Discord.Logger.Log($@"=== A job threw an exception ===
+Job Name: {exInfo.Name};
+Exception: {exInfo.Exception.Message};
+Stack trace: {exInfo.Exception.StackTrace};");
+            Connection.NotifyOwner("Yo, Peter. Turns out a job threw an exception. <:down:409830013387538446>");
+        }
+
         private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
         {
             var exception = (Exception) unhandledExceptionEventArgs.ExceptionObject;
