@@ -62,9 +62,11 @@ namespace JustineCore.Discord.Features.TutorialServer
             if(context.Channel.Id != WaitingRoomChannelId) return;
             if(context.User.IsBot) return;
 
-            if(!MessageIsValidAgreement(context) 
-                && !UserIsMember((SocketGuildUser)context.User) 
-                && !UserAlreadyAlerted(context.User.Id))
+            var isValidAgreement = MessageIsValidAgreement(context);
+            var userIsMember = UserIsMember((SocketGuildUser)context.User);
+            var userAlreadyAlerted = UserAlreadyAlerted(context.User.Id);
+
+            if(!userAlreadyAlerted && !userIsMember && !isValidAgreement)
             {
                 AlertedUserIds.Add(context.User.Id);
                 var welcomeMsg = _lang.GetPooledResource("WAITING_ROOM_REMINDER");
@@ -159,8 +161,10 @@ namespace JustineCore.Discord.Features.TutorialServer
 
         private bool MessageIsValidAgreement(SocketCommandContext context)
         {
-            return context.Message.Content.ToLower().Contains("I accept the rules")
-                && context.Message.MentionedUsers.Contains(_client.CurrentUser);
+            var containsPhrase = context.Message.Content.ToLower().Contains("i accept the rules");
+            var justine = _tutorialServer.GetUser(Constants.JustineId);
+            var mentionsJustine = context.Message.MentionedUsers.Contains(justine);
+            return containsPhrase && mentionsJustine;
         }
 
         private bool UserIsMember(SocketGuildUser user)
