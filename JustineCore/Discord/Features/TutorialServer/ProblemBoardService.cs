@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord.Commands;
@@ -18,6 +20,7 @@ namespace JustineCore.Discord.Features.TutorialServer
         private SocketGuild _tutorialServer;
         private SocketTextChannel _problemBoardChannel;
         private SocketTextChannel _generalChannel;
+        private bool performingCleanup = false;
 
         public ProblemBoardService(DiscordSocketClient client, ProblemProvider problemProvider)
         {
@@ -27,8 +30,6 @@ namespace JustineCore.Discord.Features.TutorialServer
 
         internal async Task MessageReceived(SocketMessage socketMessage)
         {
-            //if(_tutorialServer is null) InitializeResources();
-
             if (!(socketMessage is SocketUserMessage msg)) return;
             if (msg.Channel is SocketDMChannel) return;
             var context = new SocketCommandContext(_client, msg);
@@ -47,7 +48,14 @@ namespace JustineCore.Discord.Features.TutorialServer
                 var success = int.TryParse(problemIdString.Trim(), out var problemId);
                 if(!success)
                 {
-                    await _generalChannel.SendMessageAsync($"{context.User.Mention}, it looks like you're trying to mark a problem as solved.\n\nHowever, I can't seem to parse the id '{problemIdString.Trim()}'. Make sure you send just the emoji with a number.\n\nThe ID of your problem should be defined in Problem Board.");
+                    if(_problemProvider.UserHasProblemWithId(context.User.Id, 0))
+                    {
+                        await SolveProblemForUser(0, context.User.Id);
+                    }
+                    else
+                    {
+                        await _generalChannel.SendMessageAsync($"{context.User.Mention}, it looks like you're trying to mark a problem as solved.\n\nHowever, I can't seem to parse the id '{problemIdString.Trim()}'. Make sure you send just the emoji with a number.\n\nThe ID of your problem should be defined in Problem Board.");
+                    }
                     return;
                 }
                 try
@@ -68,6 +76,12 @@ namespace JustineCore.Discord.Features.TutorialServer
             if(_problemBoardChannel is null) InitializeResources();
 
             var account = _problemProvider.GetAccount(userId);
+
+            if(performingCleanup)
+            {
+                await _generalChannel.SendMessageAsync("I am currently performing a cleanup. Please try submitting your problem again in about five minutes.");
+                return;
+            }
 
             var author = _tutorialServer.GetUser(userId);
             if(author is null)
@@ -96,11 +110,17 @@ namespace JustineCore.Discord.Features.TutorialServer
             await _generalChannel.SendMessageAsync($":shield:  {author.Mention}, your problem with ID ({problemId}) has been created.");
         }
 
-        public async Task SolveProblemForUser(int problemId, ulong userId)
+        public async Task SolveProblemForUser(int problemId, ulong userId, bool silent = false)
         {
             if(_problemBoardChannel is null) InitializeResources();
 
             var account = _problemProvider.GetAccount(userId);
+
+            if(performingCleanup && !silent)
+            {
+                await _generalChannel.SendMessageAsync("I am currently performing a cleanup. Please try submitting your problem again in about five minutes.");
+                return;
+            }
 
             var author = _tutorialServer.GetUser(userId);
             if(author is null)
@@ -128,7 +148,61 @@ namespace JustineCore.Discord.Features.TutorialServer
             Logger.Log($"Just deleted {problemId}.");
             await UpdateAllProblems(account.Problems);
 
+            if(silent) return;
+
             await _generalChannel.SendMessageAsync($":shield: {author.Mention}, your problem with ID ({problemId}) has been solved.");
+        }
+
+        public async Task SolveProblemForUser(ulong problemMessageId, ulong userId, bool silent = false)
+        {
+            var acc = _problemProvider.GetUserAccountByPredicate(p => p.Problems.Any(pp => pp.MessageId == problemMessageId));
+            var index = acc.Problems.IndexOf(acc.Problems.FirstOrDefault(p => p.MessageId == problemMessageId));
+            await SolveProblemForUser(index, userId, silent);
+        }
+
+        public async Task RoutineProblemCleanup()
+        {
+            Logger.Log("[RoutineProblemCleanup] Performing a routine problem cleanup");
+            performingCleanup = true;
+
+            if(_problemBoardChannel is null) InitializeResources();
+
+            var usersToMention = new List<ulong>();
+            var toDelete = _problemProvider.GetExpiredProblems();
+            //var toWarn = _problemProvider.GetSoonToBeExpiredProblems();
+
+            var hadProblems = toDelete.Any();
+
+            foreach(var problem in toDelete)
+            {
+                try
+                {
+                    await SolveProblemForUser(problem.MessageId, problem.UserId, true);
+                    if(usersToMention.Contains(problem.UserId)) continue;
+                    usersToMention.Add(problem.UserId);
+                }
+                catch(Exception e)
+                {
+                    Logger.Log($"[RoutineProblemCleanup] Failed to delete a problem. Ignoring...\nException: {e}");
+                }
+            }
+
+            var mentions = new StringBuilder();
+            foreach(var userId in usersToMention)
+            {
+                var user = _tutorialServer.GetUser(userId);
+                if(user is null) continue;
+                mentions.Append($"{user.Mention} ");
+            }
+
+            performingCleanup = false;
+            if(!hadProblems)
+            {
+                Logger.Log("[RoutineProblemCleanup] Cleanup completed... nothing to delete.");
+                return;
+            }
+
+            await _generalChannel.SendMessageAsync($":warning: Some problems by these users were removed: {mentions.ToString()}\n\n_Problems are removed 24 hours after their creation._");
         }
 
         private async Task UpdateAllProblems(List<UserProblem> problems)

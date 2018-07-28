@@ -11,6 +11,8 @@ using FluentScheduler;
 using static JustineCore.Utility;
 using System;
 using JustineCore.Discord.Features.RPG.GoldDigging;
+using JustineCore.Discord.Providers.TutorialBots;
+using JustineCore.Discord.Features.TutorialServer;
 
 namespace JustineCore.Discord
 {
@@ -20,11 +22,13 @@ namespace JustineCore.Discord
         private DiscordSocketClient _client;
         private CommandHandler _commandHandler;
         private readonly AppConfig _appConfig;
+        private readonly ProblemBoardService _problemBoardService;
 
-        public Connection(AppConfig config, DiscordSocketClient client)
+        public Connection(AppConfig config, DiscordSocketClient client, ProblemBoardService problemBoardService)
         {
             _appConfig = config;
             _client = client;
+            _problemBoardService = problemBoardService;
         }
 
         internal async Task NotifyOwner(string message)
@@ -78,7 +82,7 @@ namespace JustineCore.Discord
             var djp = Unity.Resolve<DiggingJobProvider>();
             djp.RegisterAllJobs();
 
-            await NotifyOwner("Justine Online");
+            await RegisterScheduledProblemCleanup();
         }
 
         private void ValidateToken()
@@ -93,6 +97,12 @@ namespace JustineCore.Discord
             {
                 ExecuteEveryDayAt(() => { ExecuteScheduledMessage(sm); }, sm.Hour, sm.Minute);
             }
+        }
+
+        private async Task RegisterScheduledProblemCleanup()
+        {
+            await _problemBoardService.RoutineProblemCleanup();
+            ExecuteEverHours(() => { _problemBoardService.RoutineProblemCleanup(); }, 1);
         }
 
         private void ExecuteScheduledMessage(ScheduledMessage sm)

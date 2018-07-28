@@ -96,6 +96,11 @@ namespace JustineCore
             JobManager.AddJob(action, s => s.ToRunEvery(1).Days().At(hours, minutes));
         }
 
+        public static void ExecuteEverHours(Action action, int hours)
+        {
+            JobManager.AddJob(action, s => s.ToRunEvery(1).Hours());
+        }
+
         public static T GetRandomElement<T>(List<T> list)
         {
             return list[Random.Next(0, list.Count)];

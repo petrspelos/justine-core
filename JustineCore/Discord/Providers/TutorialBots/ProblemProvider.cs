@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -14,7 +15,6 @@ namespace JustineCore.Discord.Providers.TutorialBots
 
         private readonly IDataStorage _storage;
         
-        private List<UserProblemAccount> _accounts;
         private ConcurrentDictionary<ulong, UserProblemAccount> _cAccounts;
 
         public ProblemProvider(IDataStorage storage)
@@ -49,6 +49,60 @@ namespace JustineCore.Discord.Providers.TutorialBots
             _storage.Store(account, GroupKey, GetKeyFor(account));
         }
 
+        public bool UserHasProblemWithId(ulong userId, int problemId)
+        {
+            var user = GetAccount(userId);
+            if(user is null) return false;
+            if(!user.Problems.Any()) return false;
+            
+            return problemId >= 0 && problemId < user.Problems.Count;
+        }
+
+        public IEnumerable<UserProblemView> GetProblemsByPredicate(Func<UserProblem, bool> predicate)
+        {
+            var result = new List<UserProblemView>();
+            var currentDate = DateTime.Now;
+
+            foreach(var pAcc in _cAccounts)
+            {
+                foreach(var problem in pAcc.Value.Problems)
+                {
+                    if(predicate.Invoke(problem))
+                    {
+                        result.Add(new UserProblemView 
+                        { 
+                            CreatedAt = problem.CreatedAt,
+                            MessageId = problem.MessageId,
+                            UserId = pAcc.Key
+                        });
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public UserProblemAccount GetUserAccountByPredicate(Func<UserProblemAccount, bool> predicate)
+        {
+            return _cAccounts.Values.Where(predicate).FirstOrDefault();
+        }
+
+        public IEnumerable<UserProblemView> GetExpiredProblems()
+        {
+            return GetProblemsByPredicate(p => GetDateTimeHoursDiff(p.CreatedAt) <= -24);
+        }
+
+        public IEnumerable<UserProblemView> GetSoonToBeExpiredProblems()
+        {
+            return GetProblemsByPredicate(p => GetDateTimeHoursDiff(p.CreatedAt) < -20 && GetDateTimeHoursDiff(p.CreatedAt) > -24);
+        }
+
+        private double GetDateTimeHoursDiff(DateTime date)
+        {
+            var diff = date - DateTime.Now;
+            return diff.TotalHours;
+        }
+
         private string GetKeyFor(UserProblemAccount account)
         {
             return string.Format(KeyFormat, account.Id);
@@ -56,7 +110,8 @@ namespace JustineCore.Discord.Providers.TutorialBots
 
         private bool AccountExists(ulong userId)
         {
-            return _accounts.Any(a => a.Id == userId);
+            return _cAccounts.Values.Any(a => a.Id == userId);
         }
+
     }
 }
