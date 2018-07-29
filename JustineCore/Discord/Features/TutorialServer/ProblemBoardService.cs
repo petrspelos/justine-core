@@ -67,6 +67,32 @@ namespace JustineCore.Discord.Features.TutorialServer
                     Logger.Log($"[ProblemBoardService][Exception]{e.Message}");
                 }
             }
+            else if(context.Message.Content.Trim().StartsWith(Constants.TutorialHelpMarker))
+            {
+                await _generalChannel.SendMessageAsync($@"**HOW TO POST A PROBLEM**
+_Step 1) Post the description of your problem in a single message beginning with the {Constants.TutorialProblemMarker} emoji._
+
+Example:
+{Constants.TutorialProblemMarker} I cannot seem to access the SendMessageAsync method of a channel:
+```cs
+var channel = await _client.GetChannelAsync(someChannelId);
+// channel.SendMessageAsync doesn't exist
+```
+
+_Step 2) Wait for someone to respond. :blush: Take break, watch some YouTube videos._
+
+_Step 3) After your problem is solved, mark it as such with the {Constants.TutorialSolvedMarker} emoji._
+
+Example:
+{Constants.TutorialSolvedMarker}
+
+If you have more than one problem, add the problem's ID after the marker:
+
+Example:
+{Constants.TutorialSolvedMarker} 1
+
+_You can find the ID of a problem in problem-board._");
+            }
         }
 
         public async Task CreateProblemForUser(string message, ulong userId)
