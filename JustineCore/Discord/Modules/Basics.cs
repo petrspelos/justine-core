@@ -22,6 +22,13 @@ namespace JustineCore.Discord.Modules
             _appConfig = appConfig;
         }
 
+        [Command("os")]
+        [RequireOwner]
+        public async Task OS()
+        {
+            await ReplyAsync($"I'm currently running on {Environment.OSVersion}.");
+        }
+
         [Command("help")]
         public async Task Help()
         {
