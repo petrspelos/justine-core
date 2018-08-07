@@ -6,6 +6,7 @@ namespace JustineCore
         public const ulong ServiceChannelId = 470187312827990016;
         public const ulong ServiceGeneralChannelId = 464334693089935361;
         public const ulong ServiceRole1 = 470188590538948608;
+        public const ulong TutorialBotShowcaseChannelId = 381399595600838658;
 
 #if DEBUG
         public const ulong TutorialServerId = 464334692502470666;

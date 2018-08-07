@@ -85,7 +85,7 @@ namespace JustineCore.Discord.Handlers
             var argPos = 0;
 #if DEBUG
             // return if not DEBUG guild
-            if(context.Guild.Id != Constants.ServiceServerId) return;
+            //if(context.Guild.Id != Constants.ServiceServerId) return;
             if (msg.HasStringPrefix("> ", ref argPos))
             {
                 await TryRunAsBotCommand(context, argPos);
@@ -100,7 +100,9 @@ namespace JustineCore.Discord.Handlers
 
         private async void ShowcaseVerificationGate(SocketCommandContext context)
         {
-            if(context.Channel.Id != 381399595600838658) return;
+            if(context.User.Id == Constants.JustineId) return;
+
+            if(context.Channel.Id != Constants.TutorialBotShowcaseChannelId) return;
 
             if(!context.User.IsBot) return;
 
