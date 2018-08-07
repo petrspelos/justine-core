@@ -5,6 +5,7 @@
 
 # VSCode
 .vscode/
+DeployToRaspberry.bat
 
 # .NET Core runtime
 JustineCore/jsonStorage/

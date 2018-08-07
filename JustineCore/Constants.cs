@@ -26,9 +26,15 @@ namespace JustineCore
 # endif
         public const int ProblemsDeleteAfterHours = 2;
 
+#if DEBUG
+        public const string TutorialProblemMarker = "[p]";
+        public const string TutorialSolvedMarker = "[s]";
+        public const string TutorialHelpMarker = "[h]";
+#else
         public const string TutorialProblemMarker = "<:problem:470220494835286016>";
         public const string TutorialSolvedMarker = "<:solved:470220493635715072>";
         public const string TutorialHelpMarker = "<:help:473177492396703744>";
+#endif
 
         public const ulong MiunieId = 411505318124847114;
         public const ulong JustineId = 370963330782986250;

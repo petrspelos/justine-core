@@ -165,13 +165,10 @@ _You can find the ID of a problem in problem-board._");
             var msg = await _problemBoardChannel.GetMessageAsync(problem.MessageId);
             await msg.DeleteAsync();
 
-            Logger.Log($"Count before deleting: {account.Problems.Count}");
             account.Problems.RemoveAt(problemId);
-            Logger.Log($"Count after deleting: {account.Problems.Count}");
             _problemProvider.SaveAccount(account);
-            Logger.Log($"Count after saving: {account.Problems.Count}");
 
-            Logger.Log($"Just deleted {problemId}.");
+            Logger.Log($"Deleted {problemId} ProblemBoard posts.");
             await UpdateAllProblems(account.Problems);
 
             if(silent) return;
