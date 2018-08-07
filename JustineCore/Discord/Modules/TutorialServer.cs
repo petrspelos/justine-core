@@ -113,7 +113,11 @@ namespace JustineCore.Discord.Modules
         [Command("owner")]
         public async Task GetOwner(IGuildUser target)
         {
-            if(!target.IsBot) return;
+            if(!target.IsBot) 
+            {
+                await ReplyAsync($"Turns out {target.Nickname??target.Username} is a human being. Owning a human being is called **slavery**.");
+                return;
+            }
 
             if(!_botVer.IsVerified(target.Id))
             {
