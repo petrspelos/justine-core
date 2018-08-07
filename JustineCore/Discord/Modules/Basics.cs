@@ -29,6 +29,16 @@ namespace JustineCore.Discord.Modules
             await ReplyAsync($"I'm currently running on {Environment.OSVersion}.");
         }
 
+        [Command("slowclap")]
+        public async Task SlowClap()
+        {
+            await ReplyAsync(":clap:");
+            await Task.Delay(1500);
+            await ReplyAsync(":clap:");
+            await Task.Delay(1500);
+            await ReplyAsync(":clap:");
+        }
+
         [Command("help")]
         public async Task Help()
         {
