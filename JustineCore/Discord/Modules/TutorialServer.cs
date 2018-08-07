@@ -18,25 +18,20 @@ using System.Threading.Tasks;
 
 namespace JustineCore.Discord.Modules
 {
+    [RequireGuildById(Constants.TutorialServerId)]
     public class TutorialServer : ModuleBase<SocketCommandContext>
     {
         private readonly GlobalUserDataProvider _gudp;
         private readonly VerificationProvider _botVer;
         private readonly ProblemBoardService _pbService;
-        private readonly ProblemProvider _pp;
+        private readonly ProblemProvider _problemProvider;
 
-        public TutorialServer(GlobalUserDataProvider gudp, VerificationProvider botVer, ProblemBoardService pbService, ProblemProvider pp)
+        public TutorialServer(GlobalUserDataProvider gudp, VerificationProvider botVer, ProblemBoardService pbService, ProblemProvider problemProvider)
         {
             _gudp = gudp;
             _botVer = botVer;
             _pbService = pbService;
-            _pp = pp;
-        }
-
-        private async Task<bool> UserIsOwner(SocketGuildUser user)
-        {
-            var ownerId = (await Context.Client.GetApplicationInfoAsync()).Owner.Id;
-            return user.Id == ownerId;
+            _problemProvider = problemProvider;
         }
 
         [Command("solve")]
@@ -50,7 +45,7 @@ namespace JustineCore.Discord.Modules
             }
             catch(Exception)
             {
-                var acc = _pp.GetAccount(user.Id);
+                var acc = _problemProvider.GetAccount(user.Id);
                 await ReplyAsync($"The Problem ID is most likely invalid. This might help you with debugging:\n\n```\nAccount has {acc.Problems.Count} active problems.\n```");
             }
         }
