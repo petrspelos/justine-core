@@ -14,6 +14,8 @@ using SixLabors.ImageSharp.Processing.Processors;
 using SixLabors.ImageSharp.Processing.Drawing;
 using SixLabors.Fonts;
 using SixLabors.Primitives;
+using JustineCore.Entities;
+using System.Linq;
 
 namespace JustineCore
 {
@@ -91,6 +93,15 @@ namespace JustineCore
             if(!d.ContainsKey(key)) return false;
             bool.TryParse(d[key], out var result);
             return result;
+        }
+
+        public static AppArguments ParseArgumentArray(IEnumerable<string> args)
+        {
+            return new AppArguments 
+            {
+                Token = args.FirstOrDefault(s => s.StartsWith("-t:"))?.Substring(3),
+                HelpMode = args.Any(s => s.ToLower() == "-help")
+            };
         }
     }
 }
