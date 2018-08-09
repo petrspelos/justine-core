@@ -1,13 +1,13 @@
 ﻿using System;
 using JustineCore.Discord.Providers.UserData;
 using JustineCore.Entities;
-using NUnit.Framework;
+using Xunit;
 
 namespace JustineCore.Tests
 {
     public class UserDataProviderTests
     {
-        [Test]
+        [Fact]
         public void GlobalUserDataProviderTest_DataDoesNotExist()
         {
             const ulong userId = 1;
@@ -15,10 +15,10 @@ namespace JustineCore.Tests
 
             var actual = udp.GlobalDataExists(userId);
 
-            Assert.IsFalse(actual);
+            Assert.False(actual);
         }
 
-        [Test]
+        [Fact]
         public void GlobalUserDataProviderTest_DataExists()
         {
             const ulong userId = 2;
@@ -29,14 +29,14 @@ namespace JustineCore.Tests
 
             var udp = TestUnity.Resolve<GlobalUserDataProvider>();
 
-            Assert.IsFalse(udp.GlobalDataExists(userId));
+            Assert.False(udp.GlobalDataExists(userId));
 
             udp.AddNewGlobalData(userId, consent);
 
-            Assert.IsTrue(udp.GlobalDataExists(userId));
+            Assert.True(udp.GlobalDataExists(userId));
         }
 
-        [Test]
+        [Fact]
         public void GlobalUserDataProviderTest_DataDeleting()
         {
             const ulong userId = 3;
@@ -47,15 +47,15 @@ namespace JustineCore.Tests
 
             var udp = TestUnity.Resolve<GlobalUserDataProvider>();
 
-            Assert.IsFalse(udp.GlobalDataExists(userId));
+            Assert.False(udp.GlobalDataExists(userId));
 
             udp.AddNewGlobalData(userId, consent);
 
-            Assert.IsTrue(udp.GlobalDataExists(userId));
+            Assert.True(udp.GlobalDataExists(userId));
 
             udp.DeleteUserGlobalData(userId);
 
-            Assert.IsFalse(udp.GlobalDataExists(userId));
+            Assert.False(udp.GlobalDataExists(userId));
         }
     }
 }

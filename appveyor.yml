@@ -10,14 +10,13 @@ build_script:
   - dotnet build ./src -c Release
 test_script:
 - ps: >-
-    nuget install NUnit.Runners -OutputDirectory packages
+    nuget install xunit.runner.console -OutputDirectory packages -Version 2.3.1
     
     nuget install OpenCover -OutputDirectory packages -Version 4.6.166
 
     dotnet tool install coveralls.net --version 1.0.0-beta0002 --tool-path tools
 
-    .\packages\OpenCover.4.6.166\tools\OpenCover.Console.exe -register:user -target:packages\NUnit.ConsoleRunner.3.8.0\tools\nunit3-console.exe "-targetargs:"".\packages\NUnit.ConsoleRunner.3.8.0\tools\nunit3-console.exe"" /noshadow" -filter:"+[JustineCore*]*" -output:opencoverCoverage.xml
-#   .\src\packages\OpenCover.4.6\tools\OpenCover.Console.exe -register:user -target:nunit-console.exe "-targetargs:""src\GameOfLife.NUnit.Tests\bin\$env:CONFIGURATION\GameOfLife.NUnit.Tests.dll"" /noshadow" -filter:"+[GameOfLife*]*" -output:opencoverCoverage.xml
+    .\packages\OpenCover.4.6.166\tools\OpenCover.Console.exe -register:user -target:dotnet.exe "-targetargs:"".\packages\xunit.runner.console.2.3.1\tools\netcoreapp2.0\xunit.console.dll"" ""src\JustineCore.XUnit.Tests\bin\Release\netcoreapp2.0\JustineCore.XUnit.Tests.dll"" -noshadow -appveyor" -filter:"+[JustineCore*]*" -oldStyle -output:opencoverCoverage.xml
 
     $coveralls = ".\tools\csmacnz.coveralls.exe"
 

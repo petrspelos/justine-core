@@ -1,11 +1,11 @@
 ﻿using JustineCore.Storage;
-using NUnit.Framework;
+using Xunit;
 
 namespace JustineCore.Tests
 {
-    internal class StorageGroupsTests
+    public class StorageGroupsTests
     {
-        [Test]
+        [Fact]
         public void StorageGroupsTest()
         {
             const string expectedA = "Hey";
@@ -14,8 +14,8 @@ namespace JustineCore.Tests
             var ds = TestUnity.Resolve<IDataStorage>();
             ds.Store(expectedA, "MyFirstGroup", "Message");
             ds.Store(expectedB, "MySecondGroup", "Message");
-            Assert.AreEqual(expectedA, ds.Get<string>("MyFirstGroup", "Message"));
-            Assert.AreEqual(expectedB, ds.Get<string>("MySecondGroup", "Message"));
+            Assert.Equal(expectedA, ds.Get<string>("MyFirstGroup", "Message"));
+            Assert.Equal(expectedB, ds.Get<string>("MySecondGroup", "Message"));
         }
     }
 }

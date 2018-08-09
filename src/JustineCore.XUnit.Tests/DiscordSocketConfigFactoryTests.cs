@@ -4,14 +4,13 @@ using System.Text;
 using Discord;
 using Discord.WebSocket;
 using JustineCore.Discord;
-using NUnit.Framework;
+using Xunit;
 
 namespace JustineCore.Tests
 {
-    [TestFixture]
     public class DiscordSocketConfigFactoryTests
     {
-        [Test]
+        [Fact]
         public void ConfigDefaultTest()
         {
             const int expectedMsgChacheSize = 0;
@@ -19,11 +18,11 @@ namespace JustineCore.Tests
             
             var actual = DiscordSocketConfigFactory.GetDefault();
 
-            Assert.AreEqual(expectedMsgChacheSize, actual.MessageCacheSize);
-            Assert.AreEqual(expectedAlwaysDownloadUsers, actual.AlwaysDownloadUsers);
+            Assert.Equal(expectedMsgChacheSize, actual.MessageCacheSize);
+            Assert.Equal(expectedAlwaysDownloadUsers, actual.AlwaysDownloadUsers);
         }
 
-        [Test]
+        [Fact]
         public void ConfigFromJsonTest()
         {
             const int expectedMsgCacheSize = 10;
@@ -38,12 +37,12 @@ namespace JustineCore.Tests
 
             var actual = DiscordSocketConfigFactory.FromJsonDictionary(json);
 
-            Assert.AreEqual(expectedMsgCacheSize, actual.MessageCacheSize);
-            Assert.AreEqual(expectedAlwaysDownloadUsers, actual.AlwaysDownloadUsers);
-            Assert.AreEqual(expectedLogSev, actual.LogLevel);
+            Assert.Equal(expectedMsgCacheSize, actual.MessageCacheSize);
+            Assert.Equal(expectedAlwaysDownloadUsers, actual.AlwaysDownloadUsers);
+            Assert.Equal(expectedLogSev, actual.LogLevel);
         }
 
-        [Test]
+        [Fact]
         public void ConfigFromJson_InvalidJsonTest()
         {
             const string json = "Not a proper json string.";
@@ -51,7 +50,7 @@ namespace JustineCore.Tests
             Assert.Throws<ArgumentException>( () => DiscordSocketConfigFactory.FromJsonDictionary(json) );
         }
 
-        [Test]
+        [Fact]
         public void ConfigFromJson_InvalidJsonValuesTest()
         {
             const int expectedMsgCacheSize = 0;
@@ -64,11 +63,11 @@ namespace JustineCore.Tests
 
             var actual = DiscordSocketConfigFactory.FromJsonDictionary(json);
 
-            Assert.AreEqual(expectedMsgCacheSize, actual.MessageCacheSize);
-            Assert.AreEqual(expectedAlwaysDownloadUsers, actual.AlwaysDownloadUsers);
+            Assert.Equal(expectedMsgCacheSize, actual.MessageCacheSize);
+            Assert.Equal(expectedAlwaysDownloadUsers, actual.AlwaysDownloadUsers);
         }
 
-        [Test]
+        [Fact]
         public void ConfigFromJson_IgnoreExtraValuesTest()
         {
             const int expectedMsgCacheSize = 10;
@@ -83,11 +82,11 @@ namespace JustineCore.Tests
 
             var actual = DiscordSocketConfigFactory.FromJsonDictionary(json);
 
-            Assert.AreEqual(expectedMsgCacheSize, actual.MessageCacheSize);
-            Assert.AreEqual(expectedAlwaysDownloadUsers, actual.AlwaysDownloadUsers);
+            Assert.Equal(expectedMsgCacheSize, actual.MessageCacheSize);
+            Assert.Equal(expectedAlwaysDownloadUsers, actual.AlwaysDownloadUsers);
         }
 
-        [Test]
+        [Fact]
         public void ConfigFromJson_DuplicateKeyTest()
         {
             const int expected = 100;
@@ -100,21 +99,22 @@ namespace JustineCore.Tests
 
             var actual = DiscordSocketConfigFactory.FromJsonDictionary(json);
 
-            Assert.AreEqual(expected, actual.MessageCacheSize);
+            Assert.Equal(expected, actual.MessageCacheSize);
         }
 
-        [Test]
-        [TestCase("Not a valid string.", ExpectedResult=LogSeverity.Info)]
-        [TestCase("999", ExpectedResult=LogSeverity.Info)]
-        [TestCase("4", ExpectedResult=LogSeverity.Verbose)]
-        [TestCase("Verbose", ExpectedResult=LogSeverity.Verbose)]
-        [TestCase("Debug", ExpectedResult=LogSeverity.Debug)]
-        [TestCase("Critical", ExpectedResult=LogSeverity.Critical)]
-        [TestCase("Error", ExpectedResult=LogSeverity.Error)]
-        [TestCase("Warning", ExpectedResult=LogSeverity.Warning)]
-        public LogSeverity LogLevelParsingTest_InvalidValue(string input)
+        [Theory]
+        [InlineData("Not a valid string.", LogSeverity.Info)]
+        [InlineData("999", LogSeverity.Info)]
+        [InlineData("4", LogSeverity.Verbose)]
+        [InlineData("Verbose", LogSeverity.Verbose)]
+        [InlineData("Debug", LogSeverity.Debug)]
+        [InlineData("Critical", LogSeverity.Critical)]
+        [InlineData("Error", LogSeverity.Error)]
+        [InlineData("Warning", LogSeverity.Warning)]
+        public void LogLevelParsingTest_InvalidValue(string input, LogSeverity expected)
         {
-            return DiscordSocketConfigFactory.StringToLogSeverity(input);
+            var actual = DiscordSocketConfigFactory.StringToLogSeverity(input);
+            Assert.Equal(expected, actual);
         }
     }
 }
