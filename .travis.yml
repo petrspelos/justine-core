@@ -2,6 +2,6 @@ language: csharp
 mono: none
 dotnet: 2.0.0
 script:
-  - dotnet restore
+  - dotnet restore ./src
   - dotnet build ./src/JustineCore/
   - dotnet test ./src/JustineCore.Tests/
