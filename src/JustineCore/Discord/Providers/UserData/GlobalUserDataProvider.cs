@@ -43,16 +43,9 @@ namespace JustineCore.Discord.Providers.UserData
             if (!GlobalDataExists(userId)) return;
 
             var key = string.Format(GlobalDataKeyFormat, userId);
-
-            try
-            {
-                _globalUserDatas.Remove(GetGlobalUserData(userId));
-                _dataStorage.Delete(GlobalDataGroup, key);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Storage Exception: {e.Message}");
-            }
+            
+            _globalUserDatas.Remove(GetGlobalUserData(userId));
+            _dataStorage.Delete(GlobalDataGroup, key);
         }
 
         public bool GlobalDataExists(ulong userId)
