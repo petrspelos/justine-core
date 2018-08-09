@@ -54,7 +54,7 @@ namespace JustineCore.Discord.Modules
         {
             try
             {
-                var path = Utility.GetTestImage(Context.User.GetAvatarUrl());
+                var path = JustineCore.Utilities.GetTestImage(Context.User.GetAvatarUrl());
                 await Context.Channel.SendFileAsync(path);
             }
             catch(Exception e)

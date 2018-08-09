@@ -8,11 +8,11 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentScheduler;
-using static JustineCore.Utility;
 using System;
 using JustineCore.Discord.Features.RPG.GoldDigging;
 using JustineCore.Discord.Providers.TutorialBots;
 using JustineCore.Discord.Features.TutorialServer;
+using static JustineCore.SchedulerUtilities;
 
 namespace JustineCore.Discord
 {
@@ -50,7 +50,6 @@ namespace JustineCore.Discord
 
             _client.Log += Logger.Log;
             _client.Ready += OnReady;
-            //client.UserVoiceStateUpdated += VoiceStateUpdated;
 
             _commandHandler = new CommandHandler();
             await _commandHandler.InitializeAsync(_client);

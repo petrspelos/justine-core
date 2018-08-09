@@ -100,7 +100,7 @@ namespace JustineCore.Discord.Features.RPG.GoldDigging
 
             var user = _gudp.GetGlobalUserData(job.UserId);
 
-            Utility.ExecuteAt(async () => {
+            JustineCore.SchedulerUtilities.ExecuteAt(async () => {
                 await FinishDigging(job);
             }, finishDateTime);
 

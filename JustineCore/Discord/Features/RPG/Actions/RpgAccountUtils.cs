@@ -18,11 +18,11 @@ namespace JustineCore.Discord.Features.RPG.Actions
 Gold: {gold}
 
 [N/A] Health: ..... {account.Health} / {account.MaxHealth}
-[STR] Strength: ... {account.Strength} | {Utility.GetGeneralCurveCost(account.Strength + 1)} gold to upgrade.
-[SPD] Speed: ...... {account.Speed} | {Utility.GetGeneralCurveCost(account.Speed + 1)} gold to upgrade.
-[INT] Intelligence: {account.Intelligence} | {Utility.GetGeneralCurveCost(account.Intelligence + 1)} gold to upgrade.
-[END] Endurance: .. {account.Endurance} | {Utility.GetGeneralCurveCost(account.Endurance + 1)} gold to upgrade.
-[LCK] Luck: ....... {account.Luck} | {Utility.GetGeneralCurveCost(account.Luck + 1)} gold to upgrade.
+[STR] Strength: ... {account.Strength} | {JustineCore.Utilities.GetGeneralCurveCost(account.Strength + 1)} gold to upgrade.
+[SPD] Speed: ...... {account.Speed} | {JustineCore.Utilities.GetGeneralCurveCost(account.Speed + 1)} gold to upgrade.
+[INT] Intelligence: {account.Intelligence} | {JustineCore.Utilities.GetGeneralCurveCost(account.Intelligence + 1)} gold to upgrade.
+[END] Endurance: .. {account.Endurance} | {JustineCore.Utilities.GetGeneralCurveCost(account.Endurance + 1)} gold to upgrade.
+[LCK] Luck: ....... {account.Luck} | {JustineCore.Utilities.GetGeneralCurveCost(account.Luck + 1)} gold to upgrade.
 ```";
         }
     }

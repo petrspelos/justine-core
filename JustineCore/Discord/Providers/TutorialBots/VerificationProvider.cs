@@ -47,7 +47,7 @@ namespace JustineCore.Discord.Providers.TutorialBots
             int seed;
             for(int i = 0; i < 10; i++)
             {
-                seed = Utility.Random.Next(0, pool.Length);
+                seed = JustineCore.Utilities.Random.Next(0, pool.Length);
                 result.Append(pool[seed]);
             }
 

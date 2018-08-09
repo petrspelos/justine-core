@@ -13,7 +13,7 @@ namespace JustineCore.Discord.Features.Payloads
             var guild = client.GetGuild(GuildId);
             var textChannel = guild.GetTextChannel(ChannelId);
 
-            var msg = Utility.ResolvePlaceholders(MessageTemplate);
+            var msg = JustineCore.Utilities.ResolvePlaceholders(MessageTemplate);
             await textChannel.SendMessageAsync(msg);
         }
     }

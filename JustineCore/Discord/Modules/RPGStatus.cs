@@ -270,7 +270,7 @@ namespace JustineCore.Discord.Modules
                 return;
             }
 
-            var success = Utility.Random.Next(0, 101) < 30;
+            var success = JustineCore.Utilities.Random.Next(0, 101) < 30;
 
             var reward = (uint)job.GetReward();
 
@@ -341,7 +341,7 @@ namespace JustineCore.Discord.Modules
                 $"<:travel:449271721522888744> {Context.User.Mention} decided to search for some **gold** _on the Internet._ :computer: They'll be back in {hours} hour(s)."
             };
 
-            await ReplyAsync(Utility.GetRandomElement(diggingPhrases.ToList()));
+            await base.ReplyAsync(JustineCore.Utilities.GetRandomElement(diggingPhrases.ToList()));
 
             Logger.Log($"[Gold Digging] {Context.User.Username} - for {hours} hours", ConsoleColor.Cyan);
         }
@@ -483,29 +483,29 @@ namespace JustineCore.Discord.Modules
                 failChance += 5;
             }
 
-            failChance -= Utility.Random.Next(0, (int)user.RpgAccount.Luck);
+            failChance -= JustineCore.Utilities.Random.Next(0, (int)user.RpgAccount.Luck);
 
-            var failRoll = Utility.Random.Next(1, 101);
+            var failRoll = JustineCore.Utilities.Random.Next(1, 101);
             bool success = failRoll > failChance;
 
             var maxReward = 10;
 
-            var luckRewardMod = Utility.Random.Next(0, (int)user.RpgAccount.Luck);
-            var intelligenceRewardMod = Utility.Random.Next(0, Utility.GetLogValNoNegative((int)user.RpgAccount.Intelligence));
+            var luckRewardMod = JustineCore.Utilities.Random.Next(0, (int)user.RpgAccount.Luck);
+            var intelligenceRewardMod = JustineCore.Utilities.Random.Next(0, JustineCore.Utilities.GetLogValNoNegative((int)user.RpgAccount.Intelligence));
 
 
             maxReward += luckRewardMod;
             maxReward += intelligenceRewardMod;
 
-            var reward = (uint)Utility.Random.Next(10, maxReward);
+            var reward = (uint)JustineCore.Utilities.Random.Next(10, maxReward);
 
-            var damageTaken = Utility.Random.Next(5, 20);
+            var damageTaken = JustineCore.Utilities.Random.Next(5, 20);
             var damageBase = damageTaken;
 
             if (!success) damageTaken = damageTaken * 2;
 
-            var enduranceAbsorbtionPotential = Utility.GetLogValNoNegative((int)user.RpgAccount.Endurance);
-            var enduranceAbsorbtion = Utility.Random.Next(0, enduranceAbsorbtionPotential);
+            var enduranceAbsorbtionPotential = JustineCore.Utilities.GetLogValNoNegative((int)user.RpgAccount.Endurance);
+            var enduranceAbsorbtion = JustineCore.Utilities.Random.Next(0, enduranceAbsorbtionPotential);
             damageTaken = Math.Clamp(damageTaken - enduranceAbsorbtion, 1, int.MaxValue);
 
             Console.WriteLine($@"{Context.User.Username} rolled the following:
@@ -526,13 +526,13 @@ Endurance absorbtion: {enduranceAbsorbtion}
 -- DAMAGE TOTAL: {damageTaken} --
 ");
 
-            await ReplyAsync($@"{Context.User.Mention},
+            await base.ReplyAsync($@"{Context.User.Mention},
 
 You embark on an epic 5 minutes long mission.
 
-Your task is {Utility.GetRandomElement(Constants.MissionPitches.ToList())}");
+Your task is {JustineCore.Utilities.GetRandomElement(Constants.MissionPitches.ToList())}");
 
-            Utility.ExecuteAfter(async () =>
+            JustineCore.SchedulerUtilities.ExecuteAfter(async () =>
             {
 
                 if (!_userProvider.GlobalDataExists(Context.User.Id)) return;
@@ -543,11 +543,11 @@ Your task is {Utility.GetRandomElement(Constants.MissionPitches.ToList())}");
 
                 if (!success)
                 {
-                    await ReplyAsync($@"{Context.User.Mention},
+                    await base.ReplyAsync($@"{Context.User.Mention},
 
 :x: **Your mission failed.**
 
-{Utility.GetRandomElement(Constants.MissionFailCauses.ToList())} :coffin:
+{JustineCore.Utilities.GetRandomElement(Constants.MissionFailCauses.ToList())} :coffin:
 
 :heart: -{damageTaken}
 
@@ -557,11 +557,11 @@ You now have **{rpgUser.Health} HP** and **{rpgUser.GetGoldAmount()} gold**.");
                 {
                     rpgUser.AddGold(reward);
 
-                    await ReplyAsync($@"{Context.User.Mention},
+                    await base.ReplyAsync($@"{Context.User.Mention},
 
 :white_check_mark: **Your mission was a success!**
 
-{Utility.GetRandomElement(Constants.MissionSuccessCauses.ToList())}
+{JustineCore.Utilities.GetRandomElement(Constants.MissionSuccessCauses.ToList())}
 
 :heart: -{damageTaken} | :moneybag: {reward}
 

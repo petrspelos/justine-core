@@ -87,7 +87,7 @@ namespace JustineCore.Discord.Modules
         [Command("date")]
         public async Task GetDate()
         {
-            await ReplyAsync($"Today is {Utility.ResolvePlaceholders("<proper-date>")}.");
+            await base.ReplyAsync($"Today is {JustineCore.Utilities.ResolvePlaceholders("<proper-date>")}.");
         }
 
         [Command("log clear")]

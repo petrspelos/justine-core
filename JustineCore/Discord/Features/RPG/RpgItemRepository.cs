@@ -28,7 +28,7 @@ namespace JustineCore.Discord.Features.RPG
                     Name = "Health Potion",
                     IconUrl = "?",
                     UseDelegate = (GlobalUserData u) => {
-                        u.RpgAccount.AddHealth(Utility.Random.Next(5,20));
+                        u.RpgAccount.AddHealth(JustineCore.Utilities.Random.Next(5,20));
                         return u;
                     }
                 }

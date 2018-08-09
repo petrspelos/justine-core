@@ -91,7 +91,7 @@ namespace JustineCore.Language
         {
             var pool = GetResourcePool(key, languageId);
             if(!pool.Any()) return string.Empty;
-            return Utility.GetRandomElement<string>(pool);
+            return Utilities.GetRandomElement<string>(pool);
         }
 
         public string FromPooledTemplate(string key, int languageId = 0, params object[] objects)

@@ -9,7 +9,7 @@ namespace JustineCore.Discord.Features.RPG.Actions
 
         public static StatUpgradeResult UpgradeStrength(this RpgAccount account)
         {
-            var cost = Utility.GetGeneralCurveCost((int)(account.Strength + 1));
+            var cost = JustineCore.Utilities.GetGeneralCurveCost((int)(account.Strength + 1));
             var gold = account.GetItemCount(1);
 
             if(cost > gold) return StatUpgradeResult.NotEnoughGold;
@@ -22,7 +22,7 @@ namespace JustineCore.Discord.Features.RPG.Actions
 
         public static StatUpgradeResult UpgradeHealth(this RpgAccount account)
         {
-            var cost = Utility.GetGeneralCurveCost((int)(account.MaxHealth + 1));
+            var cost = JustineCore.Utilities.GetGeneralCurveCost((int)(account.MaxHealth + 1));
             var gold = account.GetItemCount(1);
 
             if(cost > gold) return StatUpgradeResult.NotEnoughGold;
@@ -36,7 +36,7 @@ namespace JustineCore.Discord.Features.RPG.Actions
 
         public static StatUpgradeResult UpgradeSpeed(this RpgAccount account)
         {
-            var cost = Utility.GetGeneralCurveCost((int)(account.Speed + 1));
+            var cost = JustineCore.Utilities.GetGeneralCurveCost((int)(account.Speed + 1));
             var gold = account.GetItemCount(1);
 
             if(cost > gold) return StatUpgradeResult.NotEnoughGold;
@@ -49,7 +49,7 @@ namespace JustineCore.Discord.Features.RPG.Actions
 
         public static StatUpgradeResult UpgradeLuck(this RpgAccount account)
         {
-            var cost = Utility.GetGeneralCurveCost((int)(account.Luck + 1));
+            var cost = JustineCore.Utilities.GetGeneralCurveCost((int)(account.Luck + 1));
             var gold = account.GetItemCount(1);
 
             if(cost > gold) return StatUpgradeResult.NotEnoughGold;
@@ -62,7 +62,7 @@ namespace JustineCore.Discord.Features.RPG.Actions
 
         public static StatUpgradeResult UpgradeIntelligence(this RpgAccount account)
         {
-            var cost = Utility.GetGeneralCurveCost((int)(account.Intelligence + 1));
+            var cost = JustineCore.Utilities.GetGeneralCurveCost((int)(account.Intelligence + 1));
             var gold = account.GetItemCount(1);
 
             if(cost > gold) return StatUpgradeResult.NotEnoughGold;
@@ -75,7 +75,7 @@ namespace JustineCore.Discord.Features.RPG.Actions
 
         public static StatUpgradeResult UpgradeEndurance(this RpgAccount account)
         {
-            var cost = Utility.GetGeneralCurveCost((int)(account.Endurance + 1));
+            var cost = JustineCore.Utilities.GetGeneralCurveCost((int)(account.Endurance + 1));
             var gold = account.GetItemCount(1);
 
             if(cost > gold) return StatUpgradeResult.NotEnoughGold;

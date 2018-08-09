@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using Discord;
-using FluentScheduler;
 using Humanizer;
 using JustineCore.Discord;
 using JustineCore.Discord.Features.RPG;
@@ -19,7 +17,7 @@ using SixLabors.Primitives;
 
 namespace JustineCore
 {
-    public static class Utility
+    public static class Utilities
     {
         public static Random Random = new Random(DateTime.Now.Millisecond);
 
@@ -76,34 +74,23 @@ namespace JustineCore
             return (uint)(Math.Pow(lvl, 2.0) * 15.0);
         }
 
-        public static void ExecuteAt(Action action, int hours, int minutes)
-        {
-            JobManager.AddJob(action, s => s.ToRunOnceAt(hours, minutes));
-        }
-
-        public static void ExecuteAt(Action action, DateTime time)
-        {
-            JobManager.AddJob(action, s => s.ToRunOnceAt(time));
-        }
-
-        public static void ExecuteAfter(Action action, int seconds)
-        {
-            JobManager.AddJob(action, s => s.ToRunOnceIn(seconds).Seconds());
-        }
-
-        public static void ExecuteEveryDayAt(Action action, int hours, int minutes)
-        {
-            JobManager.AddJob(action, s => s.ToRunEvery(1).Days().At(hours, minutes));
-        }
-
-        public static void ExecuteEverHours(Action action, int hours)
-        {
-            JobManager.AddJob(action, s => s.ToRunEvery(1).Hours());
-        }
-
         public static T GetRandomElement<T>(List<T> list)
         {
             return list[Random.Next(0, list.Count)];
+        }
+
+        public static int TryParseIntByKey(this Dictionary<string, string> d, string key)
+        {
+            if(!d.ContainsKey(key)) return 0;
+            int.TryParse(d[key], out var result);
+            return result;
+        }
+
+        public static bool TryParseBoolByKey(this Dictionary<string, string> d, string key)
+        {
+            if(!d.ContainsKey(key)) return false;
+            bool.TryParse(d[key], out var result);
+            return result;
         }
     }
 }
