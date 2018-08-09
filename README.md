@@ -1,6 +1,6 @@
 # Justine Core BOT
-[![Build Status](https://travis-ci.org/petrspelos/justine-core.svg?branch=master)](https://travis-ci.org/petrspelos/justine-core)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/petrspelos/justine-core/blob/master/LICENSE)
+[![Build status](https://ci.appveyor.com/api/projects/status/nb5g8ok33afumhld?svg=true)](https://ci.appveyor.com/project/petrspelos/justine-core)
 [![Coverage Status](https://coveralls.io/repos/github/petrspelos/justine-core/badge.svg?branch=master)](https://coveralls.io/github/petrspelos/justine-core?branch=master)
 
 This is **Justine BOT**.
