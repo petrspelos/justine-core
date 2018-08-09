@@ -16,7 +16,9 @@ test_script:
 
     dotnet tool install coveralls.net --version 1.0.0 --tool-path tools
 
-    .\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -target:dotnet.exe "-targetargs:"".\packages\xunit.runner.console.2.3.1\tools\netcoreapp2.0\xunit.console.dll"" ""src\JustineCore.XUnit.Tests\bin\Release\netcoreapp2.0\JustineCore.XUnit.Tests.dll"" -noshadow -appveyor" -filter:"+[justine-core*]*" -oldStyle -output:opencoverCoverage.xml
+    dotnet --version
+
+    .\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -target:"C:\Program Files\dotnet\dotnet.exe" "-targetargs:"".\packages\xunit.runner.console.2.3.1\tools\netcoreapp2.0\xunit.console.dll"" ""src\JustineCore.XUnit.Tests\bin\Release\netcoreapp2.0\JustineCore.XUnit.Tests.dll"" -noshadow -appveyor" -filter:"+[JustineCore*]*" -oldStyle -output:opencoverCoverage.xml
 
     $coveralls = ".\tools\csmacnz.coveralls.exe"
 
