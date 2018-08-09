@@ -2,7 +2,7 @@ language: csharp
 mono: none
 dotnet: 2.0.0
 install:
-  - nuget restore ./justine-core.sln
+  - dotnet restore ./justine-core.sln
   - sudo apt-get install gtk-sharp2
   - curl -sS https://api.nuget.org/packages/mono.cecil.0.9.5.4.nupkg > /tmp/mono.cecil.0.9.5.4.nupkg.zip
   - unzip /tmp/mono.cecil.0.9.5.4.nupkg.zip -d /tmp/cecil
