@@ -4,6 +4,7 @@ using System.Text;
 using Discord;
 using Discord.WebSocket;
 using JustineCore.Discord;
+using Newtonsoft.Json;
 using Xunit;
 
 namespace JustineCore.Tests
@@ -35,7 +36,7 @@ namespace JustineCore.Tests
                 ""LogLevel"" : ""Debug""
             }}";
 
-            var actual = DiscordSocketConfigFactory.FromJsonDictionary(json);
+            var actual = DiscordSocketConfigFactory.FromJson(json);
 
             Assert.Equal(expectedMsgCacheSize, actual.MessageCacheSize);
             Assert.Equal(expectedAlwaysDownloadUsers, actual.AlwaysDownloadUsers);
@@ -43,11 +44,11 @@ namespace JustineCore.Tests
         }
 
         [Fact]
-        public void ConfigFromJson_InvalidJsonTest()
+        public void ConfigFromJson_InvalidJsonDoesNotThrowTest()
         {
             const string json = "Not a proper json string.";
 
-            Assert.Throws<ArgumentException>( () => DiscordSocketConfigFactory.FromJsonDictionary(json) );
+            DiscordSocketConfigFactory.FromJson(json);
         }
 
         [Fact]
@@ -61,7 +62,7 @@ namespace JustineCore.Tests
                 ""AlwaysDownloadUsers"" : ""Invalid Boolean""
             }}";
 
-            var actual = DiscordSocketConfigFactory.FromJsonDictionary(json);
+            var actual = DiscordSocketConfigFactory.FromJson(json);
 
             Assert.Equal(expectedMsgCacheSize, actual.MessageCacheSize);
             Assert.Equal(expectedAlwaysDownloadUsers, actual.AlwaysDownloadUsers);
@@ -80,7 +81,7 @@ namespace JustineCore.Tests
                 ""ExtraProperty2"" : ""Value 2""
             }}";
 
-            var actual = DiscordSocketConfigFactory.FromJsonDictionary(json);
+            var actual = DiscordSocketConfigFactory.FromJson(json);
 
             Assert.Equal(expectedMsgCacheSize, actual.MessageCacheSize);
             Assert.Equal(expectedAlwaysDownloadUsers, actual.AlwaysDownloadUsers);
@@ -97,24 +98,37 @@ namespace JustineCore.Tests
                 ""MessageCacheSize"" : ""{expected}"",
             }}";
 
-            var actual = DiscordSocketConfigFactory.FromJsonDictionary(json);
+            var actual = DiscordSocketConfigFactory.FromJson(json);
 
             Assert.Equal(expected, actual.MessageCacheSize);
         }
 
         [Theory]
-        [InlineData("Not a valid string.", LogSeverity.Info)]
-        [InlineData("999", LogSeverity.Info)]
         [InlineData("4", LogSeverity.Verbose)]
         [InlineData("Verbose", LogSeverity.Verbose)]
         [InlineData("Debug", LogSeverity.Debug)]
         [InlineData("Critical", LogSeverity.Critical)]
         [InlineData("Error", LogSeverity.Error)]
         [InlineData("Warning", LogSeverity.Warning)]
-        public void LogLevelParsingTest_InvalidValue(string input, LogSeverity expected)
+        public void DiscordSocketConfigFactory_LogSeverityParsingTest(string input, LogSeverity expected)
         {
-            var actual = DiscordSocketConfigFactory.StringToLogSeverity(input);
+            var json = $@"{{ ""LogLevel"" : ""{input}"" }}";
+            var actual = DiscordSocketConfigFactory.FromJson(json).LogLevel;
             Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void DeserializeJsonTest()
+        {
+            var expected = new DiscordSocketConfig(){GatewayHost = "ABC"};
+            var json = @"{
+                    ""GatewayHost"" : ""ABC""
+                }";
+
+            var actual = JsonConvert.DeserializeObject<DiscordSocketConfig>(json);
+
+            Assert.Equal(expected.GatewayHost, actual.GatewayHost);
+            Assert.Equal(expected.WebSocketProvider, actual.WebSocketProvider);
         }
     }
 }

@@ -23,7 +23,7 @@ namespace JustineCore.Tests
             };
 
             var actual = dictionary.TryParseIntByKey(propertyName);
-            
+
             Assert.Equal(expected, actual);
         }
 
@@ -43,29 +43,6 @@ namespace JustineCore.Tests
             };
 
             var actual = dictionary.TryParseBoolByKey(propertyName);
-            
-            Assert.Equal(expected, actual);
-        }
-
-        [Theory]
-        [InlineData("Verbose", LogSeverity.Verbose)]
-        [InlineData("Debug", LogSeverity.Debug)]
-        [InlineData("Error", LogSeverity.Error)]
-        [InlineData("Info", LogSeverity.Info)]
-        [InlineData("Warning", LogSeverity.Warning)]
-        [InlineData("Critical", LogSeverity.Critical)]
-        [InlineData("Not Correct enumeration", LogSeverity.Info)]
-        [InlineData("9841", LogSeverity.Info)]
-        public void StringDictionaryToLogSeverityTest(string value, LogSeverity expected)
-        {
-            const string propertyName = "LogLvlProperty";
-
-            var dictionary = new Dictionary<string, string>
-            {
-                { propertyName, value }
-            };
-
-            var actual = dictionary.TryParseLogSeverityByKey(propertyName);
 
             Assert.Equal(expected, actual);
         }
@@ -75,7 +52,7 @@ namespace JustineCore.Tests
         {
             const string expectedToken = "Some Token Here";
             var arguments = new [] {$"-t:{expectedToken}", "RandomArgument"};
-            
+
             var result = Utilities.ParseArgumentArray(arguments);
 
             Assert.Equal(expectedToken, result.Token);
@@ -88,7 +65,7 @@ namespace JustineCore.Tests
         {
             const string expectedToken = "";
             var arguments = new [] {"-t:", "-help"};
-            
+
             var result = Utilities.ParseArgumentArray(arguments);
 
             Assert.Equal(expectedToken, result.Token);
@@ -100,7 +77,7 @@ namespace JustineCore.Tests
         {
             const string expectedToken = null;
             var arguments = new string[] {};
-            
+
             var result = Utilities.ParseArgumentArray(arguments);
 
             Assert.Equal(expectedToken, result.Token);
