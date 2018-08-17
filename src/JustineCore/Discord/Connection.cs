@@ -83,7 +83,14 @@ namespace JustineCore.Discord
 
             await RegisterScheduledProblemCleanup();
 
-            await _client.GetUser(Constants.PeterId).SendMessageAsync("I'm online.");
+            try
+            {
+                await _client.GetUser(Constants.PeterId).SendMessageAsync("I'm online.");
+            }
+            catch
+            {
+                Logger.Log("Could not send a status DM.");
+            }
         }
 
         private void ValidateToken()
