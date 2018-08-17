@@ -109,7 +109,7 @@ _You can find the ID of a problem in problem-board._");
                 return;
             }
 
-            var author = _tutorialServer.GetUser(userId);
+            var author = await GetTutorialUserById(userId);
             if(author is null)
             {
                 Logger.Log($"Could not create a Problem in ProblemBoard for user with id {userId}. User not found.");
@@ -148,7 +148,7 @@ _You can find the ID of a problem in problem-board._");
                 return;
             }
 
-            var author = _tutorialServer.GetUser(userId);
+            var author = await GetTutorialUserById(userId);
             if(author is null)
             {
                 Logger.Log($"Could not solve a Problem in ProblemBoard for user with id {userId}. User not found.");
@@ -213,7 +213,8 @@ _You can find the ID of a problem in problem-board._");
             var mentions = new StringBuilder();
             foreach(var userId in usersToMention)
             {
-                var user = _tutorialServer.GetUser(userId);
+                //var user = _tutorialServer.GetUser(userId);
+                var user = await GetTutorialUserById(userId);
                 if(user is null) continue;
                 mentions.Append($"{user.Mention} ");
             }
@@ -248,6 +249,12 @@ _You can find the ID of a problem in problem-board._");
             _tutorialServer = _client.GetGuild(Constants.TutorialServerId);
             _problemBoardChannel = _tutorialServer.GetTextChannel(Constants.TutoriaProblemBoardId);
             _generalChannel = _tutorialServer.GetTextChannel(Constants.TutorialGeneralId);
+        }
+
+        private async Task<SocketGuildUser> GetTutorialUserById(ulong id)
+        {
+            await _tutorialServer.DownloadUsersAsync();
+            return _tutorialServer.GetUser(id);
         }
     }
 }
