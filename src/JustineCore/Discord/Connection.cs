@@ -82,6 +82,8 @@ namespace JustineCore.Discord
             djp.RegisterAllJobs();
 
             await RegisterScheduledProblemCleanup();
+
+            await _client.GetUser(Constants.PeterId).SendMessageAsync("I'm online.");
         }
 
         private void ValidateToken()

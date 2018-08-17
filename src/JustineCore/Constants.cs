@@ -39,6 +39,9 @@ namespace JustineCore
 
         public const ulong MiunieId = 411505318124847114;
         public const ulong JustineId = 370963330782986250;
+        public const ulong PeterId = 182941761801420802;
+        public const ulong SnoopsId = 240905093929500674;
+        public const ulong LeMorrowId = 199969241531678720;
 
         public const string DefaultAvatarUrl = "https://i.imgur.com/vM8PWVB.png";
         public const string DiscordBgHex = "#36393e";
