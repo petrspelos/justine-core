@@ -17,14 +17,14 @@ namespace JustineCore.Discord
                 /* WebSocketProvider = null, */
                 MessageCacheSize = 0,
                 AlwaysDownloadUsers = false,
-                ConnectionTimeout = 0,
+                // ConnectionTimeout = 0,
                 LargeThreshold = 0,
                 HandlerTimeout = null,
                 ShardId = null,
                 TotalShards = null,
-                GatewayHost = "",
-                LogLevel = LogSeverity.Verbose,
-                DefaultRetryMode = RetryMode.AlwaysFail
+                // GatewayHost = "",
+                DefaultRetryMode = RetryMode.AlwaysRetry,
+                LogLevel = LogSeverity.Debug
             };
         }
 

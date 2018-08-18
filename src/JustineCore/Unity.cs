@@ -10,6 +10,7 @@ using Unity.Resolution;
 using Unity.Injection;
 using JustineCore.Discord;
 using JustineCore.Discord.Features.TutorialServer;
+using JustineCore.Discord.Handlers;
 
 namespace JustineCore
 {
@@ -46,6 +47,7 @@ namespace JustineCore
             _container.RegisterSingleton<WaitingRoomService>();
             _container.RegisterSingleton<ProblemBoardService>();
             _container.RegisterSingleton<ProblemProvider>();
+            _container.RegisterSingleton<CommandHandler>();
             _container.RegisterType<DiscordSocketConfig>(new InjectionFactory(c => DiscordSocketConfigFactory.GetDefault()));
             _container.RegisterSingleton<DiscordSocketClient>(new InjectionConstructor(typeof(DiscordSocketConfig)));
         }

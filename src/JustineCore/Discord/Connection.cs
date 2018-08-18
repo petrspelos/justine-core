@@ -24,11 +24,12 @@ namespace JustineCore.Discord
         private readonly AppConfig _appConfig;
         private readonly ProblemBoardService _problemBoardService;
 
-        public Connection(AppConfig config, DiscordSocketClient client, ProblemBoardService problemBoardService)
+        public Connection(AppConfig config, DiscordSocketClient client, ProblemBoardService problemBoardService, CommandHandler commandHandler)
         {
             _appConfig = config;
             _client = client;
             _problemBoardService = problemBoardService;
+            _commandHandler = commandHandler;
         }
 
         internal async Task NotifyOwner(string message)
@@ -43,15 +44,9 @@ namespace JustineCore.Discord
         {
             ValidateToken();
 
-            var socketConfig = new DiscordSocketConfig
-            {
-                LogLevel = LogSeverity.Verbose
-            };
-
             _client.Log += Logger.Log;
             _client.Ready += OnReady;
 
-            _commandHandler = new CommandHandler();
             await _commandHandler.InitializeAsync(_client);
 
             try

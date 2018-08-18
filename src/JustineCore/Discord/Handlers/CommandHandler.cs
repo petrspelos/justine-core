@@ -18,7 +18,7 @@ using JustineCore.Discord.Features.TutorialServer;
 
 namespace JustineCore.Discord.Handlers
 {
-    internal class CommandHandler
+    public class CommandHandler
     {
         private DiscordSocketClient _client;
         private CommandService _commandService;
@@ -29,7 +29,7 @@ namespace JustineCore.Discord.Handlers
 
         private VerificationProvider _botVer;
 
-        internal async Task InitializeAsync(DiscordSocketClient client)
+        public async Task InitializeAsync(DiscordSocketClient client)
         {
             _client = client;
             Global.Client = client;
