@@ -9,6 +9,7 @@ using Discord.Rest;
 using Discord.WebSocket;
 using JustineCore.Discord.Providers.TutorialBots;
 using JustineCore.Entities;
+using JustineCore.Language;
 
 namespace JustineCore.Discord.Features.TutorialServer
 {
@@ -16,16 +17,18 @@ namespace JustineCore.Discord.Features.TutorialServer
     {
         private readonly DiscordSocketClient _client;
         private readonly ProblemProvider _problemProvider;
+        private readonly ILocalization _lang;
 
         private SocketGuild _tutorialServer;
         private SocketTextChannel _problemBoardChannel;
         private SocketTextChannel _generalChannel;
         private bool performingCleanup = false;
 
-        public ProblemBoardService(DiscordSocketClient client, ProblemProvider problemProvider)
+        public ProblemBoardService(DiscordSocketClient client, ProblemProvider problemProvider, ILocalization lang)
         {
             _client = client;
             _problemProvider = problemProvider;
+            _lang = lang;
         }
 
         internal async Task MessageReceived(SocketMessage socketMessage)
@@ -114,6 +117,12 @@ _You can find the ID of a problem in problem-board._");
             {
                 Logger.Log($"Could not create a Problem in ProblemBoard for user with id {userId}. User not found.");
                 return;
+            }
+
+            if(account.Problems.Count != 0)
+            {
+                var notice = $"{author.Mention}, {_lang.GetPooledResource("MULTIPLE_PROBLEMS_NOTICE")}";
+                await _generalChannel.SendMessageAsync(notice);
             }
 
             var msg = await _problemBoardChannel.SendMessageAsync("_A problem new is being created..._");
