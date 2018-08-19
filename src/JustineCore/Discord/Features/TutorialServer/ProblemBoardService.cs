@@ -201,7 +201,8 @@ _You can find the ID of a problem in problem-board._");
 
             var usersToMention = new List<ulong>();
             var toDelete = _problemProvider.GetExpiredProblems();
-            //var toWarn = _problemProvider.GetSoonToBeExpiredProblems();
+            
+            await WarnSoonToBeExpiredProblems();
 
             var hadProblems = toDelete.Any();
 
@@ -236,6 +237,24 @@ _You can find the ID of a problem in problem-board._");
             }
 
             await _generalChannel.SendMessageAsync($":warning: Some problems by these users were removed: {mentions.ToString()}\n\n_Problems are removed 24 hours after their creation._");
+        }
+
+        private async Task WarnSoonToBeExpiredProblems()
+        {
+            var toWarn = _problemProvider.GetSoonToBeExpiredProblems();
+
+            Logger.Log($"[RoutineProblemCleanup] Soon to expire: {toWarn.Count()} message(s).");
+
+            if(!toWarn.Any()) return;
+
+            var mentionSb = new StringBuilder();
+            foreach(var w in toWarn)
+            {
+                var user = await GetTutorialUserById(w.UserId);
+                mentionSb.Append($" {user.Mention}");
+            }
+
+            await _generalChannel.SendMessageAsync($":timer:{mentionSb}, one or more of your problems in <#470217412147675137> are about to expire!");
         }
 
         private async Task UpdateAllProblems(List<UserProblem> problems)

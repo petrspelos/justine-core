@@ -94,7 +94,7 @@ namespace JustineCore.Discord.Providers.TutorialBots
 
         public IEnumerable<UserProblemView> GetSoonToBeExpiredProblems()
         {
-            return GetProblemsByPredicate(p => GetDateTimeHoursDiff(p.CreatedAt) < -20 && GetDateTimeHoursDiff(p.CreatedAt) > -24);
+            return GetProblemsByPredicate(p => GetDateTimeHoursDiff(p.CreatedAt) < -23 && GetDateTimeHoursDiff(p.CreatedAt) > -24);
         }
 
         private double GetDateTimeHoursDiff(DateTime date)
