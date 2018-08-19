@@ -24,7 +24,7 @@ namespace JustineCore.Discord
                 TotalShards = null,
                 // GatewayHost = "",
                 DefaultRetryMode = RetryMode.AlwaysRetry,
-                LogLevel = LogSeverity.Debug
+                LogLevel = LogSeverity.Verbose
             };
         }
 

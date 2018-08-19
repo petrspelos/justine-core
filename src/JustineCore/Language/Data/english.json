@@ -44,6 +44,14 @@
       "A bunch of users are working on a bot called <@458722701218021391>, which looks pretty good.",
       "<@411505318124847114> is a Community BOT that you can contribute to [here](https://github.com/petrspelos/Community-Discord-BOT).",
       "<@411505318124847114> is currently being hosted on a Raspberry Pi in <@!240905093929500674> ' house."
+    ],
+    "REDEPLOYING_NOTIFICATION": [
+      ":tools: I am getting redeployed and won't be able to assist anyone during this process.\n\nDon't worry, I should be back within the next 20 minutes."
+    ],
+    "REDEPLOYING_NOTIFICATION_DONE": [
+      "<:squee:409429426774736896> Good as new!\n\nI'm back and ready to assist.",
+      "Whoa... Sometimes I read my own changelog and I'm like `Really?` <:nobugs:478858727773044758>\n\nAnyways, I'm back.",
+      "Eyy! One of those rare occasions where I don't crash during redeployment! <:yay:409434066346311681>\n\nI'm back."
     ]
   }
 }

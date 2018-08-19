@@ -7,6 +7,7 @@ using JustineCore.Discord.Features.TutorialServer;
 using JustineCore.Discord.Preconditions;
 using JustineCore.Discord.Providers.TutorialBots;
 using JustineCore.Discord.Providers.UserData;
+using JustineCore.Language;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -25,13 +26,31 @@ namespace JustineCore.Discord.Modules
         private readonly VerificationProvider _botVer;
         private readonly ProblemBoardService _pbService;
         private readonly ProblemProvider _problemProvider;
+        private readonly ILocalization _lang;
 
-        public TutorialServer(GlobalUserDataProvider gudp, VerificationProvider botVer, ProblemBoardService pbService, ProblemProvider problemProvider)
+        public TutorialServer(GlobalUserDataProvider gudp, VerificationProvider botVer, ProblemBoardService pbService, ProblemProvider problemProvider, ILocalization lang)
         {
             _gudp = gudp;
             _botVer = botVer;
             _pbService = pbService;
             _problemProvider = problemProvider;
+            _lang = lang;
+        }
+
+        [Command("redeploy")]
+        [RequireOwner]
+        public async Task RedeployingNotification()
+        {
+            var general = Context.Guild.GetTextChannel(Constants.TutorialGeneralId);
+            await general.SendMessageAsync(_lang.GetPooledResource("REDEPLOYING_NOTIFICATION"));
+        }
+
+        [Command("redeploy done")]
+        [RequireOwner]
+        public async Task DoneRedeployingNotification()
+        {
+            var general = Context.Guild.GetTextChannel(Constants.TutorialGeneralId);
+            await general.SendMessageAsync(_lang.GetPooledResource("REDEPLOYING_NOTIFICATION_DONE"));
         }
 
         [Command("solve")]
